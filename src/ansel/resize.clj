@@ -1,4 +1,4 @@
-(ns gallery.resize
+(ns ansel.resize
   (:require [image-resizer.format :as f]
             [image-resizer.core :refer :all]
             [clojure.java.io :refer [file]]

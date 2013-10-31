@@ -1,4 +1,4 @@
-(ns gallery.server
+(ns ansel.server
   (:require [clojure.string :as s]
             [taoensso.timbre :refer [info]]
             [compojure.core :refer :all]
@@ -10,8 +10,8 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as creds]
             [selmer.parser :refer [render-file]]
-            [gallery.db :as db]
-            [gallery.util :refer [cwd]]))
+            [ansel.db :as db]
+            [ansel.util :refer [cwd pretty-json]]))
 
 (selmer.parser/set-resource-path! (or (get-in @db/db [:config :template-path])
                                       (str (cwd) "/resources/templates/")))
@@ -20,6 +20,10 @@
 (defn render
   ([t]   (render-file t {}))
   ([t c] (render-file t c)))
+
+(defn process-uploaded-file [f]
+
+  )
 
 (defroutes server-routes
   (GET "/" req (render "index.html" (friend/identity req)))
@@ -34,8 +38,26 @@
             (friend/merge-authentication (resp/redirect "/") user))
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
+  ;; (GET "/upload" req
+  ;;      (friend/authenticated (render "upload.html")))
   (GET "/upload" req
-       (friend/authenticated (render "upload.html")))
+       (render "upload.html"))
+
+  (POST "/upload" req
+        (println (get-in req [:params :files]))
+        ;; (render "upload.html")
+
+        {:status 200
+         :headers {"Content-Type" "application/json"}
+         :body (pretty-json
+        {:files [
+                 
+                 {:name "chair.jpg"
+                  :size 815469
+                  :url "http://localhost:3000/chair.jpg"
+                  :thumbnailUrl "http://localhost:3000/chair.jpg"}
+                 
+                 ]})})
 
   (route/resources "/")
   (route/not-found "Not Found"))

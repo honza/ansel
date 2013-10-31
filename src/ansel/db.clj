@@ -1,8 +1,8 @@
-(ns gallery.db
+(ns ansel.db
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
             [cemerick.friend.credentials :as creds]
-            [gallery.util :refer [exists? minutes pretty-json]]))
+            [ansel.util :refer [exists? minutes pretty-json]]))
 
 (def db (atom nil))
 (def users (atom nil))

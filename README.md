@@ -1,4 +1,4 @@
-gallery
+ansel
 =======
 
 Requirements
@@ -59,11 +59,11 @@ comments:
 ns layout
 ---------
 
-    gallery.resize
-    gallery.db
-    gallery.auth
-    gallery.server
-    gallery.core
+    ansel.resize
+    ansel.db
+    ansel.auth
+    ansel.server
+    ansel.core
         start server
         start background saving
 
@@ -71,3 +71,8 @@ License
 -------
 
 BSD, short and sweet
+
+Acknowledgements
+----------------
+
+Thanks to @gotoplanb for the name

@@ -1,4 +1,4 @@
-(ns gallery.util
+(ns ansel.util
   (:require [clojure.java.io :refer [file]]
             [cheshire.core :refer :all]))
 
