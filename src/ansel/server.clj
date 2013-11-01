@@ -1,5 +1,6 @@
 (ns ansel.server
   (:require [clojure.string :as s]
+            [clojure.java.io :as io]
             [taoensso.timbre :refer [info]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -11,6 +12,7 @@
             [cemerick.friend.credentials :as creds]
             [selmer.parser :refer [render-file]]
             [ansel.db :as db]
+            [ansel.exif :refer [read-exif get-captured-timestamp]]
             [ansel.util :refer [cwd pretty-json]]))
 
 (selmer.parser/set-resource-path! (or (get-in @db/db [:config :template-path])
@@ -22,8 +24,22 @@
   ([t c] (render-file t c)))
 
 (defn process-uploaded-file [f]
+  (let [uploads (or (get-in @db/db [:config :upload-path])
+                    (str (cwd) "/resources/public/uploads/"))
+        filename (:filename f)
+        exif (read-exif (:tempfile f))
+        captured (get-captured-timestamp exif)
+        photo {:filename filename
+               :capture captured
+               :caption nil}]
 
-  )
+    (io/copy (:tempfile f) (io/file (str uploads filename)))
+    (db/add-photo-to-db photo)
+
+    {:name filename
+     :url (str "/uploads/" filename)
+     :thumbnailUrl (str "/uploads/" filename)
+     }))
 
 (defroutes server-routes
   (GET "/" req (render "index.html" (friend/identity req)))
@@ -44,20 +60,11 @@
        (render "upload.html"))
 
   (POST "/upload" req
-        (println (get-in req [:params :files]))
-        ;; (render "upload.html")
-
+    (let [uploaded (get-in req [:params :files])]
         {:status 200
          :headers {"Content-Type" "application/json"}
          :body (pretty-json
-        {:files [
-                 
-                 {:name "chair.jpg"
-                  :size 815469
-                  :url "http://localhost:3000/chair.jpg"
-                  :thumbnailUrl "http://localhost:3000/chair.jpg"}
-                 
-                 ]})})
+                 {:files (map process-uploaded-file uploaded)})}))
 
   (route/resources "/")
   (route/not-found "Not Found"))

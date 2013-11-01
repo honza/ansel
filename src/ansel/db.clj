@@ -13,7 +13,7 @@
                  :images []
                  :users {}
                  :likes []
-                 :config {:upload-path "uploads"
+                 :config {:upload-path nil
                           :template-path nil}
                  :comments []})
 
@@ -53,6 +53,12 @@
     (let [current-users @users]
       (if-not (user-exists? current-users (:username user))
         (swap! users merge (user->entry user))))))
+
+;; Photo management -----------------------------------------------------------
+
+
+(defn add-photo-to-db [photo]
+  (swap! db update-in [:images] conj photo))
 
 ;; Background saving ----------------------------------------------------------
 
