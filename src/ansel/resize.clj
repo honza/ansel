@@ -1,27 +1,27 @@
 (ns ansel.resize
   (:require [image-resizer.format :as f]
             [image-resizer.core :refer :all]
+            [clojure.string :as s]
+            [me.raynes.fs :as fs]
+            [ansel.db :as db]
             [clojure.java.io :refer [file]]
             [taoensso.timbre.profiling :as profiling :refer (p profile)])
+  (:import [java.io File]
+           [javax.imageio ImageIO])
   (:gen-class))
 
-(defn make-thumb [filename]
-  (p :thumb (f/as-file (resize-to-width (file filename) 300)
-                       filename)))
+(defn extension [path]
+  (last (seq (s/split path #"\."))))
 
-(defn get-images []
-  (map str (rest (file-seq (file "images")))))
+(defn as-file [buffered-file path]
+  (ImageIO/write buffered-file (extension path) (File. path)))
 
-(get-images)
+(defn get-thumb-name [filename size]
+  (let [[base ext] (fs/split-ext filename)]
+    (str base "_" size ext)))
 
-(defn make-all []
-  (dorun
-    (map make-thumb (get-images))))
-
-(comment
-(profile :info :thumbnail-profile
-         (dotimes [n 100]
-           (make-thumb "images/20131013_0001.jpg"))))
-
-(comment
-  (profile :info :multi-thumb (make-all)))
+(defn make-thumb [filename size]
+  (let [thumb-name (get-thumb-name filename size)
+        thumb-full (str (db/get-thumbs-path) thumb-name)]
+    (as-file (resize-to-width (file filename) size) thumb-full)
+    thumb-name))

@@ -12,6 +12,7 @@
             [cemerick.friend.credentials :as creds]
             [selmer.parser :refer [render-file]]
             [ansel.db :as db]
+            [ansel.resize :as r]
             [ansel.exif :refer [read-exif get-captured-timestamp]]
             [ansel.util :refer [cwd pretty-json]]))
 
@@ -24,8 +25,7 @@
   ([t c] (render-file t c)))
 
 (defn process-uploaded-file [f]
-  (let [uploads (or (get-in @db/db [:config :upload-path])
-                    (str (cwd) "/resources/public/uploads/"))
+  (let [uploads (db/get-uploads-path)
         filename (:filename f)
         exif (read-exif (:tempfile f))
         captured (get-captured-timestamp exif)
@@ -38,7 +38,7 @@
 
     {:name filename
      :url (str "/uploads/" filename)
-     :thumbnailUrl (str "/uploads/" filename)
+     :thumbnailUrl (str "/thumbs/" (r/make-thumb (str uploads filename) 200))
      }))
 
 (defroutes server-routes

@@ -3,6 +3,7 @@
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.5"]
+                 [me.raynes/fs "1.4.5"]
                  [com.taoensso/timbre "2.6.2"]
                  [ring/ring-core "1.2.0"]
                  [ring/ring-jetty-adapter "1.2.0"]

@@ -2,7 +2,7 @@
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
             [cemerick.friend.credentials :as creds]
-            [ansel.util :refer [exists? minutes pretty-json]]))
+            [ansel.util :refer [exists? minutes pretty-json cwd]]))
 
 (def db (atom nil))
 (def users (atom nil))
@@ -14,6 +14,7 @@
                  :users {}
                  :likes []
                  :config {:upload-path nil
+                          :thumb-path nil
                           :template-path nil}
                  :comments []})
 
@@ -56,9 +57,16 @@
 
 ;; Photo management -----------------------------------------------------------
 
-
 (defn add-photo-to-db [photo]
   (swap! db update-in [:images] conj photo))
+
+(defn get-uploads-path []
+  (or (get-in @db [:config :upload-path])
+      (str (cwd) "/resources/public/uploads/")))
+
+(defn get-thumbs-path []
+  (or (get-in @db [:config :thumb-path])
+      (str (cwd) "/resources/public/thumbs/")))
 
 ;; Background saving ----------------------------------------------------------
 
