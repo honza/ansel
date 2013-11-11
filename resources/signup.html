@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="post">
+  Username: <input type="text" name="username" /> <br>
+  Password: <input type="password" name="password" /> <br>
+  Password again: <input type="password" name="confirm" /> <br>
+
+  <input type="submit" value="Sign up" />
+</form>
+
+{% endblock %}

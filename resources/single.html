@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+  <img src="/thumbs/{{ image.big-thumb }}" />
+</div>
+
+{{ image.caption }}
+
+<p>
+Albums:
+{% for album in image.albums %}
+  {{ album}}
+{% endfor %}
+</p>
+
+
+<p>
+Captured: {{ image.captured }}
+</p>
+
+<h3>Exif</h3>
+<ul>
+  <li>Aperture: f/{{ image.exif.aperture }}</li>
+  <li>Shutter speed: {{ image.exif.shutter-speed }}</li>
+  <li>ISO: {{ image.exif.iso }}</li>
+  <li>Focal Length: {{ image.exif.focal-length }}mm</li>
+  <li>Focal Length in 35mm: {{ image.exif.focal-length-35 }}mm</li>
+  <li>Exposure compensation: {{ image.exif.exposure-compensation }}</li>
+</ul>
+
+
+{% endblock %}

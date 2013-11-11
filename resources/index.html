@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+  <h1>Recent photos</h1>
+
+  {% if current %}
+    Current: {{ current }} 
+  {% endif %}
+
+  <p>This is inside the index file.</p>
+
+  <div>
+    {% for image in images %}
+      <div class="image">
+        <a href="/image/{{ image.filename }}">
+          <img src="/thumbs/{{ image.small-thumb }}" />
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}
