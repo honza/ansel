@@ -1,0 +1,9 @@
+body {
+    margin-top: 60px;
+}
+
+.image {
+    margin: 2px;
+    width: 200px;
+    float: left;
+}
