@@ -2,21 +2,27 @@
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
             [cemerick.friend.credentials :as creds]
+            [clojure.java.io :as io]
             [ansel.util :refer [exists? minutes pretty-json cwd]]))
 
-(def db (atom nil))
 (def users (atom nil))
+(def images (atom nil))
+(def albums (atom nil))
+(def likes (atom nil))
+(def config (atom nil))
+(def comments (atom nil))
+
 (def running (atom true))
 (def save-interval (minutes 3))
 
-(def default-db {:albums []
-                 :images []
+(def default-db {:albums {}
+                 :images {}
                  :users {}
-                 :likes []
+                 :likes {}
                  :config {:upload-path nil
                           :thumb-path nil
                           :template-path nil}
-                 :comments []})
+                 :comments {}})
 
 ;; Loading --------------------------------------------------------------------
 
@@ -24,13 +30,25 @@
   (let [data (if (exists? "config.json")
                (parse-string (slurp "config.json") true)
                default-db)]
-    (reset! db (dissoc data :users))
-    (reset! users (:users data))))
+    (reset! users    (:users data))
+    (reset! images   (:images data))
+    (reset! albums   (:albums data))
+    (reset! likes    (:likes data))
+    (reset! config   (:config data))
+    (reset! comments (:comments data))))
+
+(defn get-context []
+  {:users @users
+   :images @images
+   :albums @albums
+   :likes @likes
+   :config @config
+   :comments @comments})
+
 
 (defn save-data-to-disk []
   (info "saving data to disk")
-  (spit "config.json"
-        (pretty-json (merge @db {:users @users}))))
+  (spit "config.json" (pretty-json (get-context))))
 
 (load-data-from-disk)
 
@@ -58,15 +76,21 @@
 ;; Photo management -----------------------------------------------------------
 
 (defn add-photo-to-db [photo]
-  (swap! db update-in [:images] conj photo))
+  (swap! images assoc (keyword (:filename photo)) photo))
+
+(defn add-album-to-db [album]
+  (swap! albums assoc (keyword album) {:name album}))
 
 (defn get-uploads-path []
-  (or (get-in @db [:config :upload-path])
-      (str (cwd) "/resources/public/uploads/")))
+  (or (:upload-path @config)
+      (.getPath (io/resource "public/uploads/"))))
 
 (defn get-thumbs-path []
-  (or (get-in @db [:config :thumb-path])
-      (str (cwd) "/resources/public/thumbs/")))
+  (or (:thumb-path @config)
+      (.getPath (io/resource "public/thumbs/"))))
+
+(defn get-template-path []
+  (:template-path @config))
 
 ;; Background saving ----------------------------------------------------------
 

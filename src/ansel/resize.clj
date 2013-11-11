@@ -1,6 +1,7 @@
 (ns ansel.resize
   (:require [image-resizer.format :as f]
             [image-resizer.core :refer :all]
+            [image-resizer.util :refer [buffered-image]]
             [clojure.string :as s]
             [me.raynes.fs :as fs]
             [ansel.db :as db]
@@ -16,12 +17,42 @@
 (defn as-file [buffered-file path]
   (ImageIO/write buffered-file (extension path) (File. path)))
 
-(defn get-thumb-name [filename size]
+(defn get-thumb-name
+  "(get-thumb-name 'dog.jpg' 200)
+   => 'dog_200.jpg'"
+  [filename size]
   (let [[base ext] (fs/split-ext filename)]
     (str base "_" size ext)))
 
-(defn make-thumb [filename size]
-  (let [thumb-name (get-thumb-name filename size)
+(defn process [src dest img-fns]
+  (as-file
+    ((apply comp img-fns) src)
+    dest))
+
+(defn flip [f]
+  (fn [& args]
+    (apply f (reverse args))))
+
+(defn vertical? [f]
+  (let [[w h] (dimensions (buffered-image f))]
+    (> h w)))
+
+(defn make-thumb
+  "Resize image to height of size and then crop to width of size,
+  making it a square"
+  [f size]
+  (let [thumb-name (get-thumb-name f size)
         thumb-full (str (db/get-thumbs-path) thumb-name)]
-    (as-file (resize-to-width (file filename) size) thumb-full)
+    (process f thumb-full
+      (if (vertical? f)
+        [(partial (flip crop-to-height) size)
+         (partial (flip resize-to-width) size)]
+        [(partial (flip crop-to-width) size)
+         (partial (flip resize-to-height) size)]))
+    thumb-name))
+
+(defn resize-to-width* [f size]
+  (let [thumb-name (get-thumb-name f size)
+        thumb-full (str (db/get-thumbs-path) thumb-name)]
+    (as-file (resize-to-width f size) thumb-full)
     thumb-name))
