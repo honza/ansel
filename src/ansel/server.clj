@@ -7,14 +7,16 @@
             [compojure.route :as route]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.util.response :as resp]
+            [ring.middleware.session :refer [wrap-session]]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as creds]
             [selmer.parser :refer [render-file]]
             [ansel.db :as db]
             [ansel.resize :as r]
+            [ansel.session :refer [filesystem-store]]
             [ansel.exif :refer [read-exif format-exif get-captured-timestamp]]
-            [ansel.util :refer [pretty-json]]))
+            [ansel.util :refer [pretty-json in?]]))
 
 (when-let [p (db/get-template-path)]
   (selmer.parser/set-resource-path! p))
@@ -51,10 +53,13 @@
       add-thumb-urls))
 
 (defn render
-  ([t]
-   (render-file t (prepare-db (db/get-context))))
-  ([t c]
-   (render-file t (merge c (prepare-db (db/get-context))))))
+  ([req t]
+   (render req t {}))
+  ([req t c]
+   (let [context (db/get-context)
+         db      (prepare-db context)
+         ident   (friend/identity req)]
+    (render-file t (merge db c ident)))))
 
 (defn process-uploaded-file [album f]
   (let [uploads (db/get-uploads-path)
@@ -85,10 +90,12 @@
      :thumbnailUrl small-thumb-url}))
 
 (defroutes server-routes
-  (GET "/" req (render "index.html" (friend/identity req)))
-  (GET "/login" [] (render "login.html"))
+  (GET "/" req
+       (println "session" (req :session))
+       (render req "index.html"))
+  (GET "/login" req (render req "login.html"))
   (GET "/logout" req (friend/logout* (resp/redirect "/")))
-  (GET "/signup" [] (render "signup.html"))
+  (GET "/signup" req (render req "signup.html" ))
   (POST "/signup" {{:keys [username password confirm] :as params} :params :as req}
         (if (and (not-any? s/blank? [username password confirm])
                  (= password confirm))
@@ -97,10 +104,8 @@
             (friend/merge-authentication (resp/redirect "/") user))
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
-  ;; (GET "/upload" req
-  ;;      (friend/authenticated (render "upload.html")))
   (GET "/upload" req
-       (render "upload.html"))
+    (friend/authenticated (render req "upload.html")))
 
   (POST "/upload" req
     (let [uploaded         (get-in req [:params :files])
@@ -113,15 +118,42 @@
 
   (GET "/image/:image" req
     (let [image-name (get-in req [:params :image])
-          image      (@db/images (keyword image-name))]
-      (render "single.html" {:image (add-thumbs-to-photo image)})))
+          image      (@db/images (keyword image-name))
+          ident      (friend/identity req)]
+      (render req "single.html"
+              (merge
+                {:image (add-thumbs-to-photo image)
+                 :you-like (in? (:likes image) (:current ident))}
+                ident))))
 
-  (POST "/like/:image" req
-    (let [image-name (get-in req [:params :image])
-          image      (@db/images (keyword image-name))]
-      ;; (render "single.html" {:image (add-thumbs-to-photo image)})
-      (db/add-like-to-photo image
-      ))
+  (POST "/like" req
+    (friend/authenticated
+      (let [image-name (get-in req [:params :image])
+            image      (@db/images (keyword image-name))
+            username   (:current (friend/identity req))]
+        (when-not (in? (:likes image) username)
+          (db/add-photo-to-db
+            (update-in image [:likes] conj username)))
+        (resp/redirect (str (:context req) "/image/" image-name)))))
+
+  (GET "/album" req
+    (render req "album-form.html"))
+
+  (POST "/album" req
+    (let [album (get-in req [:params :album])]
+      (db/add-album-to-db album)
+      (resp/redirect (str (:context req) "/upload"))))
+
+  (GET "/albums" req
+    (render req "albums.html"))
+
+  (GET "/albums/:album" req
+    (let [album-name (get-in req [:params :album])
+          album      (@db/albums (keyword album-name))
+          all-images (vals @db/images)
+          images     (filter #(contains? (:albums %) (keyword album-name)) all-images)]
+      (render req "album.html" {:album album
+                                :images images})))
 
   (route/resources "/")
   (route/not-found "Not Found"))
@@ -131,13 +163,13 @@
     (creds/bcrypt-credential-fn @db/users keyword-map)))
 
 (def server
-  (handler/site
-    (friend/authenticate server-routes
-                         {:allow-anon? true
+  (-> server-routes
+    (friend/authenticate {:allow-anon? true
                           :login-uri "/login"
                           :default-landing-url "/"
                           :credential-fn credential-fn
-                          :workflows [(workflows/interactive-form)]})))
+                          :workflows [(workflows/interactive-form)]})
+    (handler/site {:session {:store (filesystem-store "session.json")}})))
 
 (defn start-server []
   (run-jetty server {:port 8000 :join? false})

@@ -13,3 +13,10 @@
 
 (defn pretty-json [m]
   (generate-string m {:pretty true}))
+
+(defn in? [coll el]
+  (some #(= el %) coll))
+
+(defn when-slurp [filename]
+  (when (exists? filename)
+    (slurp filename)))

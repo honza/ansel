@@ -2,19 +2,58 @@
 
 {% block content %}
 
-<div>
-  <img src="/thumbs/{{ image.big-thumb }}" />
+<div class="row">
+  <div class="col-md-12 col-sm-12 col-lg-12">
+    <img class="img-thumbnail" src="/thumbs/{{ image.big-thumb }}" />
+  </div>
 </div>
+
+<div class="row">
+  <div class="col-md-12 col-sm-12 col-lg-12">
 
 {{ image.caption }}
 
-<p>
-Albums:
-{% for album in image.albums %}
-  {{ album}}
-{% endfor %}
-</p>
+{% if image.albums %}
+  <p>
+  Albums:
+  {% for album in image.albums %}
+    {{ album}}
+  {% endfor %}
+  </p>
+{% endif %}
 
+{% if current %}
+
+{% if image.likes %}
+
+  <p>
+    {% if image.likes|length = 1 %}
+      1 person likes this
+    {% else %}
+      {{ image.likes|length }} people like this
+    {% endif %}
+  </p>
+
+{% endif %}
+
+{% for like in image.likes %}
+  {{ like }}
+{% endfor %}
+
+{% if you-like %}
+  <p>You like this</p>
+{% else %}
+
+  <p>
+    <form method="post" action="/like">
+      <input type="hidden" name="image" value="{{ image.filename }}" />
+      <input class="btn btn-primary" type="submit" value="Like this" />
+    </form>
+  </p>
+
+{% endif %}
+
+{% endif %}
 
 <p>
 Captured: {{ image.captured }}
@@ -30,5 +69,7 @@ Captured: {{ image.captured }}
   <li>Exposure compensation: {{ image.exif.exposure-compensation }}</li>
 </ul>
 
+  </div>
+</div>
 
 {% endblock %}

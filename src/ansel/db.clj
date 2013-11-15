@@ -35,7 +35,8 @@
     (reset! albums   (:albums data))
     (reset! likes    (:likes data))
     (reset! config   (:config data))
-    (reset! comments (:comments data))))
+    (reset! comments (:comments data))
+    (info "data loaded from disk")))
 
 (defn get-context []
   {:users @users
@@ -44,7 +45,6 @@
    :likes @likes
    :config @config
    :comments @comments})
-
 
 (defn save-data-to-disk []
   (info "saving data to disk")
@@ -76,10 +76,12 @@
 ;; Photo management -----------------------------------------------------------
 
 (defn add-photo-to-db [photo]
-  (swap! images assoc (keyword (:filename photo)) photo))
+  (swap! images assoc (keyword (:filename photo)) photo)
+  (info "photo added"))
 
 (defn add-album-to-db [album]
-  (swap! albums assoc (keyword album) {:name album}))
+  (swap! albums assoc (keyword album) {:name album})
+  (info "album added"))
 
 (defn get-uploads-path []
   (or (:upload-path @config)

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <form method="post" role="form">
+    <div class="form-group">
+      <label for="album">Album name</label>
+      <input class="form-control input-sm" type="text" name="album" id="album" />
+    </div>
+    <input type="submit" class="btn btn-primary" value="Save" />
+  </form>
+</div>
+{% endblock %}

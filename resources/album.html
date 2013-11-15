@@ -4,16 +4,8 @@
 
 <div class="row">
 
-  <h1>Recent photos</h1>
+  <h1>{{ album.name }}</h1>
 
-  {% if current %}
-    Current: {{ current }} 
-  {% endif %}
-
-  <p>This is inside the index file.</p>
-</div>
-
-<div class="row">
   {% for image in images %}
     <div class="col-md-3 col-sm-6 col-xs-12 col-lg-2">
       <a href="/image/{{ image.filename }}">
@@ -21,6 +13,7 @@
       </a>
     </div>
   {% endfor %}
+
 </div>
 
 {% endblock %}
