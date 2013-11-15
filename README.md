@@ -52,6 +52,12 @@ Run the server with code reloading:
 
 Note that running the server this way disables the background saving.
 
+Releases
+--------
+
+You can download prebuilt jar files from the
+[release page](http://honza.ca/ansel/).
+
 License
 -------
 
