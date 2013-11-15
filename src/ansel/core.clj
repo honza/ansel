@@ -5,5 +5,5 @@
 
 (defn -main
   [& args]
-  ;; (start-saving)
+  (start-saving)
   (start-server))

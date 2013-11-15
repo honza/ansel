@@ -13,3 +13,7 @@ pom.xml.asc
 images
 .DS_Store
 .nrepl-port
+session.json
+config.json
+thumbs
+uploads

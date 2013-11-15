@@ -1,6 +1,7 @@
 (ns ansel.db
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
+            [me.raynes.fs :as fs]
             [cemerick.friend.credentials :as creds]
             [clojure.java.io :as io]
             [ansel.util :refer [exists? minutes pretty-json cwd]]))
@@ -23,34 +24,6 @@
                           :thumb-path nil
                           :template-path nil}
                  :comments {}})
-
-;; Loading --------------------------------------------------------------------
-
-(defn load-data-from-disk []
-  (let [data (if (exists? "config.json")
-               (parse-string (slurp "config.json") true)
-               default-db)]
-    (reset! users    (:users data))
-    (reset! images   (:images data))
-    (reset! albums   (:albums data))
-    (reset! likes    (:likes data))
-    (reset! config   (:config data))
-    (reset! comments (:comments data))
-    (info "data loaded from disk")))
-
-(defn get-context []
-  {:users @users
-   :images @images
-   :albums @albums
-   :likes @likes
-   :config @config
-   :comments @comments})
-
-(defn save-data-to-disk []
-  (info "saving data to disk")
-  (spit "config.json" (pretty-json (get-context))))
-
-(load-data-from-disk)
 
 ;; User management ------------------------------------------------------------
 
@@ -84,15 +57,47 @@
   (info "album added"))
 
 (defn get-uploads-path []
-  (or (:upload-path @config)
-      (.getPath (io/resource "public/uploads/"))))
+  (or (:upload-path @config) "uploads/"))
 
 (defn get-thumbs-path []
-  (or (:thumb-path @config)
-      (.getPath (io/resource "public/thumbs/"))))
+  (or (:thumb-path @config) "thumbs/"))
 
 (defn get-template-path []
   (:template-path @config))
+
+;; Loading --------------------------------------------------------------------
+
+(defn load-data-from-disk []
+  (let [data (if (exists? "config.json")
+               (parse-string (slurp "config.json") true)
+               default-db)]
+    (reset! users    (:users data))
+    (reset! images   (:images data))
+    (reset! albums   (:albums data))
+    (reset! likes    (:likes data))
+    (reset! config   (:config data))
+    (reset! comments (:comments data))
+    (info "data loaded from disk")))
+
+(defn get-context []
+  {:users @users
+   :images @images
+   :albums @albums
+   :likes @likes
+   :config @config
+   :comments @comments})
+
+(defn save-data-to-disk []
+  (info "saving data to disk")
+  (spit "config.json" (pretty-json (get-context))))
+
+(defn assert-fs []
+  (info "creating dirs")
+  (fs/mkdirs (get-uploads-path))
+  (fs/mkdirs (get-thumbs-path)))
+
+(load-data-from-disk)
+(assert-fs)
 
 ;; Background saving ----------------------------------------------------------
 

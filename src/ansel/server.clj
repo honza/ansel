@@ -90,9 +90,7 @@
      :thumbnailUrl small-thumb-url}))
 
 (defroutes server-routes
-  (GET "/" req
-       (println "session" (req :session))
-       (render req "index.html"))
+  (GET "/" req (render req "index.html"))
   (GET "/login" req (render req "login.html"))
   (GET "/logout" req (friend/logout* (resp/redirect "/")))
   (GET "/signup" req (render req "signup.html" ))
@@ -155,6 +153,7 @@
       (render req "album.html" {:album album
                                 :images images})))
 
+  (route/files "/thumbs" {:root (db/get-thumbs-path)})
   (route/resources "/")
   (route/not-found "Not Found"))
 
