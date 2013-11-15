@@ -1,71 +1,56 @@
 ansel
 =======
 
-Requirements
-------------
+Ansel is a self-hosted, zero-configuration photo gallery application.  With
+Ansel, you can showcase your photographs online without having to worry about
+who owns your work and how it can be used by third parties.
 
-* automatic thumbnail generation
-* cropping of thumbnails
-* albums
-* logged in users can comment and like
-* email subscription to updates
-* captions
+Ansel is written almost entirely in Clojure and is distributed as an uberjar.
+All you need to do is download the file and run it.  Ansel handles resizing,
+exif data collection, captions, albums and much more.  All of your data is
+internally stored as JSON and can be easily used by other applications.  Ansel
+comes with a default set of templates and stylesheets and can be easily
+extended customized.
+
+Users can also create accounts to post comments and likes.  This feature is
+intended for family photo galleries.
+
+What already works
+------------------
+
+* Image upload
+* Exif data collection
+* User creation and authentication
+* Album creation
+* Thumbnails
+* Likes
+* Custom templates
+
+Planned
+-------
+
+* Logged in users can comment
+* Email subscription to updates
+* Captions
 * JSON import/export
-* backed by in-memory, periodically saved to disk JSON hash
-* sane handling of image files
-* image upload
-* super simple deployment
-* android app to provide intent
-* bootstrap for design
+* Android app to provide intent
+* Sharing to Facebook
 
-Urls
-----
+Developing
+----------
 
-    /album/rome
-    /image/2013...
-    /
+Make sure that you have [Leiningen](https://github.com/technomancy/leiningen)
+installed.
 
-Data structure
---------------
+Clone, the repository:
 
-```yaml
+    $ git clone git@github.com:honza/ansel.git
 
-albums:
-    -
-        name: Rome
-        images:
-            - 2013...jpg
-images:
-    -
-        filename: 2013...jpg
-        caption: Cool picture
-        taken: 2013-10-04 13:01:21
-        albums:
-            - Rome
+Run the server with code reloading:
 
-likes:
-    -
-        user: honza
-        image: 2013...jpg
-        created: 2013-10-04 13:01:21
+    $ lein ring server
 
-comments:
-    -
-        user: honza
-        image: 2013...jpg
-        created: 2013-10-04 13:01:21
-```
-
-ns layout
----------
-
-    ansel.resize
-    ansel.db
-    ansel.auth
-    ansel.server
-    ansel.core
-        start server
-        start background saving
+Note that running the server this way disables the background saving.
 
 License
 -------
