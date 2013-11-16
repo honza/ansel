@@ -4,13 +4,19 @@
 
 <div class="row">
 
-  <h1>Albums</h1>
+  <div class="col-md-6">
+    <h1>Albums</h1>
 
-  <a class="btn btn-primary" href="/album">Create new album</a>
+    <ul>
+      {% for album in albums %}
+        <li><a href="/albums/{{ album.name }}">{{ album.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
 
-  {% for album in albums %}
-    <a href="/albums/{{ album.name }}">{{ album.name }}</a>
-  {% endfor %}
+  <div class="col-md-6">
+    <a class="btn btn-primary" href="/album">Create a new album</a>
+  </div>
 
 </div>
 
