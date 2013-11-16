@@ -105,12 +105,15 @@
         (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (GET "/album" req
-    (render req "album-form.html"))
+       (println (:params req))
+    (render req "album-form.html" {:next (or (get-in req [:params :next])
+                                             "/albums")}))
 
   (POST "/album" req
-    (let [album (get-in req [:params :album])]
+    (let [album (get-in req [:params :album])
+          redir (get-in req [:params :next])]
       (db/add-album-to-db album)
-      (resp/redirect (str (:context req) "/upload"))))
+      (resp/redirect (str (:context req) redir))))
 
   (GET "/albums" req
     (render req "albums.html"))
