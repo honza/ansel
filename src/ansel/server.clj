@@ -105,7 +105,6 @@
         (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (GET "/album" req
-       (println (:params req))
     (render req "album-form.html" {:next (or (get-in req [:params :next])
                                              "/albums")}))
 
