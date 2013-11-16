@@ -135,8 +135,9 @@
 (defn get-db []
   (prepare-db (get-context)))
 
-(load-data-from-disk)
-(assert-fs)
+(defn init []
+  (load-data-from-disk)
+  (assert-fs))
 
 ;; Background saving ----------------------------------------------------------
 
