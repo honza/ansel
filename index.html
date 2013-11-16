@@ -1,16 +1,64 @@
 <!doctype html>
 <html>
 <head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<title>Ansel - self-hosted, zero-configuration photo gallery</title>
 </head>
 <body>
 
-<h1>Ansel releases</h1>
+<h1>Ansel</h1>
+
+<div class="left">
+  <p>
+
+    Ansel is a self-hosted, zero-configuration photo gallery application. With
+    Ansel, you can showcase your photographs online without having to worry about
+    who owns your work and how it can be used by third parties.
+
+  </p>
+
+  <p>
+
+    Ansel is written almost entirely in <a href="http://clojure.org">Clojure</a>
+    and is distributed as an uberjar. All you need to do is download the file and
+    run it. Ansel handles resizing, exif data collection, captions, albums and
+    much more. All of your data is internally stored as JSON and can be easily
+    used by other applications. Ansel comes with a default set of templates and
+    stylesheets and can be easily extended customized.
+
+  </p>
+
+  <p>
+
+    Users can also create accounts to post comments and likes. This feature is
+    intended for family photo galleries.
+
+  </p>
+
+</div>
+
+<div class="right">
+  <img src="ansel.jpg" />
+</div>
+
+<div class="clear"></div>
+
+
+<h2>Demo</h2>
+
+<p>Coming soon</p>
+
+<h2>Source code</h2>
+
+<p>Source code is available on <a href="https://github.com/honza/ansel">GitHub</a>.</p>
+
+<h2>Running</h2>
 
 <p>Running the uberjar:</p>
 
 <code><pre>$ java -Xmx1g -Djava.awt.headless=true -jar ansel-x.x.x-standalone.jar</pre></code>
 
-<h2>0.1.1 - 2013-11-16</h2>
+<h3>0.1.1 - 2013-11-16</h3>
 
 <ul>
   <li><a href="releases/ansel-0.1.1-standalone.jar">uberjar</a></li>
@@ -18,7 +66,7 @@
   <li>md5: bf61e871e2d275459fe6739dc628db03</li>
 </ul>
 
-<h2>0.1.0 - 2013-11-15</h2>
+<h3>0.1.0 - 2013-11-15</h3>
 
 <ul>
   <li><a href="releases/ansel-0.1.0-standalone.jar">uberjar</a></li>
