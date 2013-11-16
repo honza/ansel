@@ -1,5 +1,5 @@
-(defproject ansel "0.1.0"
-  :description "FIXME: write description"
+(defproject ansel "0.1.1"
+  :description "Ansel, a self-hosted photo gallery"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.5"]
