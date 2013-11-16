@@ -17,12 +17,6 @@
 (defn as-file [buffered-file path]
   (ImageIO/write buffered-file (extension path) (File. path)))
 
-(defn get-thumb-name
-  "(get-thumb-name 'dog.jpg' 200)
-   => 'dog_200.jpg'"
-  [filename size]
-  (let [[base ext] (fs/split-ext filename)]
-    (str base "_" size ext)))
 
 (defn process [src dest img-fns]
   (as-file
@@ -41,7 +35,7 @@
   "Resize image to height of size and then crop to width of size,
   making it a square"
   [f size]
-  (let [thumb-name (get-thumb-name f size)
+  (let [thumb-name (db/get-thumb-name f size)
         thumb-full (str (db/get-thumbs-path) thumb-name)]
     (process f thumb-full
       (if (vertical? f)
@@ -52,7 +46,7 @@
     thumb-name))
 
 (defn resize-to-width* [f size]
-  (let [thumb-name (get-thumb-name f size)
+  (let [thumb-name (db/get-thumb-name f size)
         thumb-full (str (db/get-thumbs-path) thumb-name)]
     (as-file (resize-to-width f size) thumb-full)
     thumb-name))

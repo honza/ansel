@@ -96,6 +96,45 @@
   (fs/mkdirs (get-uploads-path))
   (fs/mkdirs (get-thumbs-path)))
 
+(defn get-thumb-name
+  "(get-thumb-name 'dog.jpg' 200)
+   => 'dog_200.jpg'"
+  [filename size]
+  (let [[base ext] (fs/split-ext filename)]
+    (str base "_" size ext)))
+
+(defn add-thumbs-to-photo [p]
+  (let [small (get-thumb-name (:filename p) 200)
+        big (get-thumb-name (:filename p) 900)]
+  (assoc p :small-thumb small :big-thumb big)))
+
+(defn add-thumb-urls [db]
+  (let [thumbed (map add-thumbs-to-photo (:images db))]
+    (assoc db :images thumbed)))
+
+(defn sort-images [db]
+  (assoc db :images (reverse (sort-by :filename (:images db)))))
+
+(defn sort-albums [db]
+  (assoc db :albums (reverse (sort-by :name (:albums db)))))
+
+(defn unroll-images [db]
+  (assoc db :images (vals (:images db))))
+
+(defn unroll-albums [db]
+  (assoc db :albums (vals (:albums db))))
+
+(defn prepare-db [db]
+  (-> db
+      unroll-images
+      unroll-albums
+      sort-images
+      sort-albums
+      add-thumb-urls))
+
+(defn get-db []
+  (prepare-db (get-context)))
+
 (load-data-from-disk)
 (assert-fs)
 

@@ -23,41 +23,11 @@
 
 (selmer.parser/cache-off!)
 
-(defn add-thumbs-to-photo [p]
-  (let [small (r/get-thumb-name (:filename p) 200)
-        big (r/get-thumb-name (:filename p) 900)]
-  (assoc p :small-thumb small :big-thumb big)))
-
-(defn add-thumb-urls [db]
-  (let [thumbed (map add-thumbs-to-photo (:images db))]
-    (assoc db :images thumbed)))
-
-(defn sort-images [db]
-  (assoc db :images (reverse (sort-by :filename (:images db)))))
-
-(defn sort-albums [db]
-  (assoc db :albums (reverse (sort-by :name (:albums db)))))
-
-(defn unroll-images [db]
-  (assoc db :images (vals (:images db))))
-
-(defn unroll-albums [db]
-  (assoc db :albums (vals (:albums db))))
-
-(defn prepare-db [db]
-  (-> db
-      unroll-images
-      unroll-albums
-      sort-images
-      sort-albums
-      add-thumb-urls))
-
 (defn render
   ([req t]
    (render req t {}))
   ([req t c]
-   (let [context (db/get-context)
-         db      (prepare-db context)
+   (let [db      (db/get-db)
          ident   (friend/identity req)]
     (render-file t (merge db c ident)))))
 
@@ -120,7 +90,7 @@
           ident      (friend/identity req)]
       (render req "single.html"
               (merge
-                {:image (add-thumbs-to-photo image)
+                {:image (db/add-thumbs-to-photo image)
                  :you-like (in? (:likes image) (:current ident))}
                 ident))))
 
