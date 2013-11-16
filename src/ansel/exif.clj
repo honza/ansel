@@ -12,12 +12,16 @@
    (.getText item)])
 
 (defn read-exif [file]
-  (let [metadata (Sanselan/getMetadata file)
-        exif-items (.getItems metadata)]
-    (apply assoc {} (mapcat parse-item exif-items))))
+  (let [metadata (Sanselan/getMetadata file)]
+    (if-not metadata
+      {}
+      (apply assoc {} (mapcat parse-item (.getItems metadata))))))
+
 
 (defn get-captured-timestamp [exif]
-  (s/replace (exif (keyword "Create Date")) #"'" ""))
+  (let [value (exif (keyword "Create Date"))]
+    (when value
+      (s/replace value #"'" ""))))
 
 (defn format-exif [exif]
   {:focal-length          (exif (keyword "Focal Length"))
