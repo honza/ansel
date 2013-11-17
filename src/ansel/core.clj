@@ -7,4 +7,4 @@
   [& args]
   (init)
   (start-saving)
-  (start-server))
+  (start-server (Integer. (or (first args) "8000"))))

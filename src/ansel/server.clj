@@ -142,6 +142,6 @@
                           :workflows [(workflows/interactive-form)]})
     (handler/site {:session {:store (filesystem-store "session.json")}})))
 
-(defn start-server []
-  (run-jetty server {:port 8000 :join? false})
+(defn start-server [port]
+  (run-jetty server {:port port :join? false})
   (info "server online"))
