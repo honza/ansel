@@ -15,6 +15,11 @@ extended customized.
 Users can also create accounts to post comments and likes.  This feature is
 intended for family photo galleries.
 
+Demo
+----
+
+You can see a demo [here](http://ansel.demo.honza.ca/).
+
 What already works
 ------------------
 
