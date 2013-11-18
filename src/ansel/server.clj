@@ -53,7 +53,7 @@
                                900))]
 
     (db/add-photo-to-db photo)
-    (db/add-album-to-db album)
+    (db/add-album-to-db {:name album :cover nil})
 
     {:name filename
      :url (str "/uploads/" filename)
@@ -111,7 +111,7 @@
   (POST "/album" req
     (let [album (get-in req [:params :album])
           redir (get-in req [:params :next])]
-      (db/add-album-to-db album)
+      (db/add-album-to-db {:name album :cover nil})
       (resp/redirect (str (:context req) redir))))
 
   (GET "/albums" req
@@ -120,10 +120,9 @@
   (GET "/albums/:album" req
     (let [album-name (get-in req [:params :album])
           album      (@db/albums (keyword album-name))
-          all-images (vals @db/images)
-          images     (filter #(contains? (:albums %) (keyword album-name)) all-images)]
-      (render req "album.html" {:album album
-                                :images images})))
+          all-images (map db/add-thumbs-to-photo (vals @db/images))
+          full       (db/add-images-to-album all-images album)]
+      (render req "album.html" {:album full})))
 
   (route/files "/thumbs" {:root (db/get-thumbs-path)})
   (route/resources "/")

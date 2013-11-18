@@ -4,7 +4,7 @@
             [me.raynes.fs :as fs]
             [cemerick.friend.credentials :as creds]
             [clojure.java.io :as io]
-            [ansel.util :refer [exists? minutes pretty-json cwd]]))
+            [ansel.util :refer [exists? minutes pretty-json cwd in?]]))
 
 (def users (atom nil))
 (def images (atom nil))
@@ -53,7 +53,7 @@
   (info "photo added"))
 
 (defn add-album-to-db [album]
-  (swap! albums assoc (keyword album) {:name album})
+  (swap! albums assoc (keyword (:name album)) album)
   (info "album added"))
 
 (defn get-uploads-path []
@@ -98,7 +98,7 @@
 
 (defn get-thumb-name
   "(get-thumb-name 'dog.jpg' 200)
-   => 'dog_200.jpg'"
+  => 'dog_200.jpg'"
   [filename size]
   (let [[base ext] (fs/split-ext filename)]
     (str base "_" size ext)))
@@ -106,7 +106,7 @@
 (defn add-thumbs-to-photo [p]
   (let [small (get-thumb-name (:filename p) 200)
         big (get-thumb-name (:filename p) 900)]
-  (assoc p :small-thumb small :big-thumb big)))
+    (assoc p :small-thumb small :big-thumb big)))
 
 (defn add-thumb-urls [db]
   (let [thumbed (map add-thumbs-to-photo (:images db))]
@@ -124,13 +124,37 @@
 (defn unroll-albums [db]
   (assoc db :albums (vals (:albums db))))
 
+(defn add-cover-to-album [images album]
+  (assoc album :cover (or (:cover album)
+                          (first (:images album)))))
+
+(defn add-covers-to-albums [db]
+  (let [images (:images db)
+        albums (map (partial add-cover-to-album images) (:albums db))]
+    (assoc db :albums albums)))
+
+(defn add-images-to-album [images album]
+  (let [images-in-album (filter
+                          (fn [img]
+                            (in? (:albums img) (:name album)))
+                          images)]
+    (assoc album :images images-in-album)))
+
+(defn add-images-to-albums [db]
+  (let [images (:images db)
+        old-albums (:albums db)
+        albums (map (partial add-images-to-album images) old-albums)]
+    (assoc db :albums albums)))
+
 (defn prepare-db [db]
   (-> db
       unroll-images
       unroll-albums
       sort-images
       sort-albums
-      add-thumb-urls))
+      add-thumb-urls
+      add-images-to-albums
+      add-covers-to-albums))
 
 (defn get-db []
   (prepare-db (get-context)))
