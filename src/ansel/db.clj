@@ -146,6 +146,9 @@
         albums (map (partial add-images-to-album images) old-albums)]
     (assoc db :albums albums)))
 
+(defn add-recent-images [db]
+  (assoc db :recent (take 5 (:images db))))
+
 (defn prepare-db [db]
   (-> db
       unroll-images
@@ -153,6 +156,7 @@
       sort-images
       sort-albums
       add-thumb-urls
+      add-recent-images
       add-images-to-albums
       add-covers-to-albums))
 
