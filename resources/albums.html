@@ -10,8 +10,10 @@
     <ul class="list-unstyled">
       {% for album in albums %}
         <li>
-        <h3><a href="/albums/{{ album.name }}">{{ album.name }}</a></h3>
-          <img class="img-thumbnail" src="/thumbs/{{ album.cover.small-thumb }}" />
+          <h3><a href="/albums/{{ album.name }}">{{ album.name }}</a></h3>
+          {% if album.cover.small-thumb %}
+            <img class="img-thumbnail" src="/thumbs/{{ album.cover.small-thumb }}" />
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
