@@ -25,7 +25,7 @@
 
   (delete-session [_ session-key]
     (let [session-data (read-string (when-slurp session-filename))
-          updated-data (dissoc session-data session-key session-data)]
+          updated-data (dissoc session-data (keyword session-key))]
       (spit session-filename updated-data)
       nil)))
 
