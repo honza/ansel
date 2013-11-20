@@ -28,8 +28,11 @@
    (render req t {}))
   ([req t c]
    (let [db      (db/get-db)
-         ident   (friend/identity req)]
-    (render-file t (merge db c ident)))))
+         ident   (friend/identity req)
+         current (:current ident)
+         roles   (get-in ident [:authentications current :roles])
+         is-admin? {:is-admin? (in? roles "admin")}]
+    (render-file t (merge db c ident is-admin?)))))
 
 (defn process-uploaded-file [album f]
   (let [uploads (db/get-uploads-path)
