@@ -73,16 +73,17 @@
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
   (GET "/upload" req
-    (friend/authenticated (render req "upload.html")))
+    (friend/authorize #{"admin"} (render req "upload.html")))
 
   (POST "/upload" req
-    (let [uploaded         (get-in req [:params :files])
-          album            (get-in req [:params :album])
-          process-uploaded (partial process-uploaded-file album)]
-      {:status 200
-        :headers {"Content-Type" "application/json"}
-        :body (pretty-json
-                {:files (map process-uploaded uploaded)})}))
+    (friend/authorize #{"admin"}
+      (let [uploaded         (get-in req [:params :files])
+            album            (get-in req [:params :album])
+            process-uploaded (partial process-uploaded-file album)]
+        {:status 200
+          :headers {"Content-Type" "application/json"}
+          :body (pretty-json
+                  {:files (map process-uploaded uploaded)})})))
 
   (GET "/image/:image" req
     (let [image-name (get-in req [:params :image])
