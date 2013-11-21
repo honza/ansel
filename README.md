@@ -72,3 +72,17 @@ Acknowledgements
 ----------------
 
 Thanks to @gotoplanb for the name
+
+Changelog
+---------
+
+### 0.1.2 - (2013-11-21)
+
+* Don't run init code when ns is loaded
+* Redirect properly after album form submission
+* Add albums page
+* First cli arg is now a port number
+* Add album covers
+* Upload requires admin authorization
+* Fix session key deletion
+* Add more things to the template context
