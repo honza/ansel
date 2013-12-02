@@ -24,14 +24,12 @@ REST API endpoints
 REST API authentication
 -----------------------
 
-There are two options:
+Basic auth headers.
 
-1.  Basic auth
-2.  Simplified oauth
+1.  Build a string of `username:password`
+2.  Base64 encode it
+3.  Supply the encoded string in the `Authorization` header.
 
-Basic auth would be fine if all of the network communication was done over SSL.
-Since we can't exactly guarantee that this will happen, I think we have a moral
-responsibility to implement a more secure version of auth.
-
-I think we can use the username and password as key and secret and HMAC sign
-each request (including a timestamp and all that jazz).
+```
+curl -X GET -H "Authorization: Basic <encoded string here>" http://....
+```
