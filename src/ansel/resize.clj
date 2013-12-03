@@ -3,7 +3,6 @@
             [image-resizer.core :refer :all]
             [image-resizer.util :refer [buffered-image]]
             [clojure.string :as s]
-            [me.raynes.fs :as fs]
             [ansel.db :as db]
             [clojure.java.io :refer [file]]
             [taoensso.timbre.profiling :as profiling :refer (p profile)])
@@ -16,7 +15,6 @@
 
 (defn as-file [buffered-file path]
   (ImageIO/write buffered-file (extension path) (File. path)))
-
 
 (defn process [src dest img-fns]
   (as-file
@@ -50,3 +48,9 @@
         thumb-full (str (db/get-thumbs-path) thumb-name)]
     (as-file (resize-to-width f size) thumb-full)
     thumb-name))
+
+(defn thumb-url [filename]
+  (str "/thumbs/" filename))
+
+(defn make-small-thumb [f]
+  (thumb-url (make-thumb f 200)))

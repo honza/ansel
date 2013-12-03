@@ -11,13 +11,6 @@
   [(keyword (.getKeyword item))
    (.getText item)])
 
-(defn read-exif [file]
-  (let [metadata (Sanselan/getMetadata file)]
-    (if-not metadata
-      {}
-      (apply assoc {} (mapcat parse-item (.getItems metadata))))))
-
-
 (defn get-captured-timestamp [exif]
   (let [value (exif (keyword "Create Date"))]
     (when value
@@ -31,3 +24,10 @@
    :iso                   (exif (keyword "ISO"))
    :exposure-compensation (exif (keyword "Exposure Compensation"))
    :captured              (get-captured-timestamp exif)})
+
+(defn read-exif [file]
+  (let [metadata (Sanselan/getMetadata file)]
+    (when metadata
+      (format-exif
+        (apply assoc {} (mapcat parse-item (.getItems metadata)))))))
+
