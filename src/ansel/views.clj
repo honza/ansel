@@ -1,6 +1,7 @@
 (ns ansel.views
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
+            [clojure.math.numeric-tower :refer [ceil]]
             [selmer.parser :refer [render-file]]
             [compojure.core :refer :all]
             [compojure.route :as route]
@@ -16,30 +17,48 @@
 
 (selmer.parser/cache-off!)
 
+(def page-size 20)
+
+(defn subvec*
+  "Safer subvec"
+  [v start end]
+  (when (or start end)
+    (subvec v start end)))
+
+(defn paginate [page page-size images]
+  (when (pos? page)
+    (let [page-count (int (ceil (/ (count images) page-size)))]
+      (when (>= page-count page)
+        (if (= page 1)
+          [0 (min (dec page-size)
+                  (count images))]
+          [(* page-size (dec page))
+           (min (dec (* page-size page))
+                (count images))])))))
+
 (defn render
   ([req t]
    (render req t {}))
-  ([req t c]
+  ([req t ctx]
    (let [ident (friend/identity req)
-         current (:current ident)
-         roles   (get-in ident [:authentications current :roles])]
-    (render-file t (merge
-                     (db/get-db)
-                     c
-                     (friend/identity req)
-                     {:is-admin? (in? roles "admin")})))))
+         db (or (:db ctx) (db/get-db))
+         roles (get-in ident [:authentications (:current ident) :roles])
+         admin? {:is-admin? (in? roles "admin")}]
+    (render-file t (merge db (dissoc ctx :db) ident admin?)))))
+
+(defn make-photo [filename exif album]
+  {:filename filename
+   :captured (:captured exif)
+   :exif exif
+   :albums (if album [album] [])
+   :caption nil})
 
 (defn process-uploaded-file [album f]
   (let [filename (:filename f)
         exif (read-exif (:tempfile f))
-        photo {:filename filename
-               :captured (:captured exif)
-               :exif exif
-               :albums (if album [album] [])
-               :caption nil}
         uploaded-file (io/file (str (db/get-uploads-path) filename))]
     (io/copy (:tempfile f) uploaded-file)
-    (db/add-photo-to-db photo)
+    (db/add-photo-to-db (make-photo filename exif album))
     (db/add-album-to-db {:name album :cover nil})
     {:name filename
      :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
@@ -112,6 +131,27 @@
           all-images (map db/add-thumbs-to-photo (vals @db/images))
           full       (db/add-images-to-album all-images album)]
       (render req "album.html" {:album full})))
+
+  (GET "/all" req
+    (let [c (db/get-db)
+          images (take page-size (:images c))]
+      (render req "images.html" {:db c
+                                 :next nil
+                                 :images images})))
+
+  (GET "/all/:page" req
+    (let [c (db/get-db)
+          images (vec (:images c))
+          page (Integer. (get-in req [:params :page]))
+          [start end] (paginate page page-size images)
+          images (subvec* images start end)]
+      (if images
+        (render req "images.html" {:db c
+                                   :page page
+                                   :next (inc page)
+                                   :prev (dec page)
+                                   :images images})
+        (resp/redirect (str (:context req) "/all")))))
 
   (route/files "/thumbs" {:root (db/get-thumbs-path)})
   (route/resources "/")

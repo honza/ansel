@@ -2,6 +2,7 @@
   :description "Ansel, a self-hosted photo gallery"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/math.numeric-tower "0.0.2"]
                  [compojure "1.1.5"]
                  [me.raynes/fs "1.4.5"]
                  [com.taoensso/timbre "2.6.2"]

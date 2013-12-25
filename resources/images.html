@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  {% for image in images %}
+    <div class="col-md-3 col-sm-6 col-xs-12 col-lg-2">
+      <a href="/image/{{ image.filename }}">
+        <img class="img-thumbnail" src="/thumbs/{{ image.small-thumb }}" />
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="row">
+  {% if next %}
+    <a href="/all/{{ next }}" class="btn btn-primary">next</a>
+  {% endif %}
+
+  {% if prev = 1 %}
+    <a href="/all" class="btn btn-primary">previous</a>
+  {% else %}
+  <a href="/all/{{ prev }}" class="btn btn-primary">previous</a>
+  {% endif %}
+</div>
+
+{% endblock %}

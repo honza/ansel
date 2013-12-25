@@ -166,6 +166,7 @@
 (defn init []
   (load-data-from-disk)
   (assert-fs))
+(init)
 
 ;; Background saving ----------------------------------------------------------
 
