@@ -17,11 +17,14 @@
     <a href="/all/{{ next }}" class="btn btn-primary">next</a>
   {% endif %}
 
-  {% if prev = 1 %}
-    <a href="/all" class="btn btn-primary">previous</a>
-  {% else %}
-  <a href="/all/{{ prev }}" class="btn btn-primary">previous</a>
+  {% if prev %}
+    {% if prev = 1 %}
+      <a href="/all" class="btn btn-primary">previous</a>
+    {% else %}
+      <a href="/all/{{ prev }}" class="btn btn-primary">previous</a>
+    {% endif %}
   {% endif %}
+
 </div>
 
 {% endblock %}

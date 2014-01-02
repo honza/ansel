@@ -53,7 +53,7 @@
   (info "photo added"))
 
 (defn add-album-to-db [album]
-  (swap! albums assoc (keyword (:name album)) album)
+  (swap! albums assoc (keyword (:slug album)) album)
   (info "album added"))
 
 (defn get-uploads-path []

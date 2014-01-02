@@ -10,7 +10,7 @@
             [ansel.resize :as r]
             [ansel.db :as db]
             [ansel.exif :refer [read-exif]]
-            [ansel.util :refer [pretty-json in?]]))
+            [ansel.util :refer [pretty-json in? slugify]]))
 
 (when-let [p (db/get-template-path)]
   (selmer.parser/set-resource-path! p))
@@ -59,7 +59,7 @@
         uploaded-file (io/file (str (db/get-uploads-path) filename))]
     (io/copy (:tempfile f) uploaded-file)
     (db/add-photo-to-db (make-photo filename exif album))
-    (db/add-album-to-db {:name album :cover nil})
+    (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
     {:name filename
      :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
      :thumbnailUrl (r/make-small-thumb uploaded-file)}))
@@ -119,7 +119,7 @@
   (POST "/album" req
     (let [album (get-in req [:params :album])
           redir (get-in req [:params :next])]
-      (db/add-album-to-db {:name album :cover nil})
+      (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
       (resp/redirect (str (:context req) redir))))
 
   (GET "/albums" req
@@ -136,7 +136,8 @@
     (let [c (db/get-db)
           images (take page-size (:images c))]
       (render req "images.html" {:db c
-                                 :next nil
+                                 :next (when (> (count (:images c)) page-size)
+                                         2)
                                  :images images})))
 
   (GET "/all/:page" req

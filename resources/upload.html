@@ -23,7 +23,7 @@
         <select class="form-control" name="album">
           {% if albums|length > 0 %}
             {% for album in albums %}
-              <option value="{{ album.name }}">{{ album.name }}</option>
+              <option value="{{ album.slug }}">{{ album.name }}</option>
             {% endfor %}
           {% else %}
             <option value="Uncategorized">Uncategorized</option>
