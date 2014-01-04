@@ -65,6 +65,14 @@
 (defn get-template-path []
   (:template-path @config))
 
+(defn like-photo [photo user]
+  (let [current-likes (or ((keyword (:filename photo)) @likes)
+                  [])]
+    (when-not (in? current-likes (:username user))
+      (swap! likes assoc
+             (keyword (:filename photo))
+             (conj current-likes (:username user))))))
+
 ;; Loading --------------------------------------------------------------------
 
 (defn load-data-from-disk []
