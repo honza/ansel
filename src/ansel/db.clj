@@ -67,7 +67,7 @@
 
 (defn like-photo [photo user]
   (let [current-likes (or ((keyword (:filename photo)) @likes)
-                  [])]
+                          [])]
     (when-not (in? current-likes (:username user))
       (swap! likes assoc
              (keyword (:filename photo))
@@ -174,7 +174,6 @@
 (defn init []
   (load-data-from-disk)
   (assert-fs))
-(init)
 
 ;; Background saving ----------------------------------------------------------
 
