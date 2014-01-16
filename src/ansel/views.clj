@@ -1,7 +1,6 @@
 (ns ansel.views
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
-            [clojure.math.numeric-tower :refer [ceil]]
             [selmer.parser :refer [render-file]]
             [compojure.core :refer :all]
             [compojure.route :as route]
@@ -10,7 +9,7 @@
             [ansel.resize :as r]
             [ansel.db :as db]
             [ansel.exif :refer [read-exif]]
-            [ansel.util :refer [pretty-json in? slugify]]))
+            [ansel.util :refer [pretty-json in? slugify safe-subvec paginate]]))
 
 (when-let [p (db/get-template-path)]
   (selmer.parser/set-resource-path! p))
@@ -32,23 +31,6 @@
 (reset! default-404 default-error)
 
 (def page-size 20)
-
-(defn subvec*
-  "Safer subvec"
-  [v start end]
-  (when (or start end)
-    (subvec v start end)))
-
-(defn paginate [page page-size images]
-  (when (pos? page)
-    (let [page-count (int (ceil (/ (count images) page-size)))]
-      (when (>= page-count page)
-        (if (= page 1)
-          [0 (min (dec page-size)
-                  (count images))]
-          [(* page-size (dec page))
-           (min (dec (* page-size page))
-                (count images))])))))
 
 (defn render
   ([req t]
@@ -173,7 +155,7 @@
           images (vec (:images c))
           page (Integer. (get-in req [:params :page]))
           [start end] (paginate page page-size images)
-          images (subvec* images start end)]
+          images (safe-subvec images start end)]
       (if images
         (render req "images.html" {:db c
                                    :page page

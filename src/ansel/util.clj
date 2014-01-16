@@ -1,6 +1,7 @@
 (ns ansel.util
   (:require [clojure.java.io :refer [file]]
             [clojure.string :as string]
+            [clojure.math.numeric-tower :refer [ceil]]
             [cheshire.core :refer :all]))
 
 (defn exists? [path]
@@ -33,3 +34,20 @@
       string/lower-case
       dashify
       remove-specials))
+
+(defn safe-subvec
+  "Safer subvec"
+  [v start end]
+  (when (or start end)
+    (subvec v start end)))
+
+(defn paginate [page page-size images]
+  (when (pos? page)
+    (let [page-count (int (ceil (/ (count images) page-size)))]
+      (when (>= page-count page)
+        (if (= page 1)
+          [0 (min (dec page-size)
+                  (count images))]
+          [(* page-size (dec page))
+           (min (dec (* page-size page))
+                (count images))])))))
