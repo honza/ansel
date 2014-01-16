@@ -19,9 +19,11 @@
     </ul>
   </div>
 
-  <div class="col-md-6">
-    <a class="btn btn-primary" href="/album">Create a new album</a>
-  </div>
+  {% if user.admin %}
+    <div class="col-md-6">
+      <a class="btn btn-primary" href="/album">Create a new album</a>
+    </div>
+  {% endif %}
 
 </div>
 

@@ -2,9 +2,9 @@
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
             [me.raynes.fs :as fs]
-            [cemerick.friend.credentials :as creds]
             [clojure.java.io :as io]
-            [ansel.util :refer [exists? minutes pretty-json cwd in?]]))
+            [ansel.util :refer [exists? minutes pretty-json cwd in?]])
+  (:import org.mindrot.jbcrypt.BCrypt))
 
 (def users (atom nil))
 (def images (atom nil))
@@ -27,15 +27,20 @@
 
 ;; User management ------------------------------------------------------------
 
+(defn hash-bcrypt [password]
+  (BCrypt/hashpw password (BCrypt/gensalt)))
+
+(defn verify-bcrypt [p h]
+  (BCrypt/checkpw p h))
+
 (defn get-user [username]
-  (get-in @users (keyword username)))
+  (get @users (keyword username)))
 
 (defn user->entry [user]
   (let [{:keys [username password] :as user} user]
     {(keyword username)
-     {:identity username
-      :username username
-      :password (creds/hash-bcrypt password)}}))
+     {:username username
+      :password (hash-bcrypt password)}}))
 
 (defn user-exists? [users username]
   (contains? users (keyword username)))

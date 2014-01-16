@@ -26,10 +26,10 @@
       <ul class="nav navbar-nav">
         <li><a href="/">Home</a></li>
         <li><a href="/albums">Albums</a></li>
-        {% if is-admin? %}
+        {% if user.admin %}
           <li><a href="/upload">Upload</a></li>
         {% endif %}
-        {% if current %}
+        {% if user %}
           <li><a href="/logout">Logout</a></li>
         {% else %}
           <li><a href="/login">Login</a></li>

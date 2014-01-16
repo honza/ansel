@@ -6,7 +6,7 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.util.response :as resp]
-            [cemerick.friend :as friend]
+            [jordan.core :refer :all]
             [ansel.resize :as r]
             [ansel.db :as db]
             [ansel.exif :refer [read-exif]]
@@ -16,6 +16,20 @@
   (selmer.parser/set-resource-path! p))
 
 (selmer.parser/cache-off!)
+
+(defn authenticated? [req]
+  (get-in req [:session :user]))
+
+(defn administrator? [req]
+  (get-in req [:session :user :admin]))
+
+(defn default-error [req]
+  {:status 404
+   :body "not found"})
+
+(reset! logged-in-fn authenticated?)
+(reset! admin-fn administrator?)
+(reset! default-404 default-error)
 
 (def page-size 20)
 
@@ -40,11 +54,9 @@
   ([req t]
    (render req t {}))
   ([req t ctx]
-   (let [ident (friend/identity req)
-         db (or (:db ctx) (db/get-db))
-         roles (get-in ident [:authentications (:current ident) :roles])
-         admin? {:is-admin? (in? roles "admin")}]
-    (render-file t (merge db (dissoc ctx :db) ident admin?)))))
+   (let [db (or (:db ctx) (db/get-db))
+         user {:user (get-in req [:session :user])}]
+      (render-file t (merge db (dissoc ctx :db) user)))))
 
 (defn make-photo [filename exif album]
   {:filename filename
@@ -66,24 +78,38 @@
 
 ;; Routes ---------------------------------------------------------------------
 
+
+(defn handle-login [req]
+  (let [{{:keys [username password]} :params} req
+        user (db/get-user (or username nil))]
+    (if user
+      (if (db/verify-bcrypt password (:password user))
+        (-> (resp/redirect "/")
+            (assoc :session {:user user}))
+        (default-error req))
+      (default-error req))))
+
 (defroutes server-routes
   (GET "/" req (render req "index.html"))
   (GET "/login" req (render req "login.html"))
-  (GET "/logout" req (friend/logout* (resp/redirect "/")))
+  (POST "/login" req (handle-login req))
+
+  (GET "/logout" req (-> (resp/redirect "/")
+                         (assoc :session {})))
   (GET "/signup" req (render req "signup.html" ))
   (POST "/signup" {{:keys [username password confirm] :as params} :params :as req}
         (if (and (not-any? s/blank? [username password confirm])
                  (= password confirm))
           (let [user (select-keys params [:username :password])]
             (db/add-user-to-db user)
-            (friend/merge-authentication (resp/redirect "/") user))
+            (resp/redirect "/") user)
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
-  (GET "/upload" req
-    (friend/authorize #{"admin"} (render req "upload.html")))
+  (with-admin-required
+    (GET "/upload" req (render req "upload.html")))
 
-  (POST "/upload" req
-    (friend/authorize #{"admin"}
+  (with-admin-required
+    (POST "/upload" req
       (let [uploaded         (get-in req [:params :files])
             album            (get-in req [:params :album])
             process-uploaded (partial process-uploaded-file album)]
@@ -94,19 +120,20 @@
 
   (GET "/image/:image" req
     (let [image-name (get-in req [:params :image])
-          image      (@db/images (keyword image-name))
-          ident      (friend/identity req)]
-      (render req "single.html"
-              (merge
-                {:image (db/add-thumbs-to-photo image)
-                 :you-like (in? (:likes image) (:current ident))}
-                ident))))
+          image      (get @db/images (keyword image-name))
+          user       (get-in req [:session :user])
+          you-like   (when user
+                       (in? (:likes image) (:username user)))]
+      (if image
+        (render req "single.html" {:image (db/add-thumbs-to-photo image)
+                                   :you-like you-like})
+        (default-error req))))
 
-  (POST "/like" req
-    (friend/authenticated
+  (with-login-required
+    (POST "/like" req
       (let [image-name (get-in req [:params :image])
             image      (@db/images (keyword image-name))
-            username   (:current (friend/identity req))]
+            username   (get-in req [:session :user :username])]
         (when-not (in? (:likes image) username)
           (db/add-photo-to-db
             (update-in image [:likes] conj username)))
@@ -116,11 +143,12 @@
     (render req "album-form.html" {:next (or (get-in req [:params :next])
                                              "/albums")}))
 
-  (POST "/album" req
-    (let [album (get-in req [:params :album])
-          redir (get-in req [:params :next])]
-      (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
-      (resp/redirect (str (:context req) redir))))
+  (with-admin-required
+    (POST "/album" req
+      (let [album (get-in req [:params :album])
+            redir (get-in req [:params :next])]
+        (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
+        (resp/redirect (str (:context req) redir)))))
 
   (GET "/albums" req
     (render req "albums.html"))
