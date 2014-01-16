@@ -63,6 +63,13 @@ Releases
 You can download prebuilt jar files from the
 [release page](http://honza.ca/ansel/).
 
+Making an uberjar
+-----------------
+
+This is easy with leiningen:
+
+    $ lein uberjar
+
 License
 -------
 
