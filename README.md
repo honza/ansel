@@ -75,6 +75,12 @@ License
 
 BSD, short and sweet
 
+Contributions
+-------------
+
+All contributions are welcome and appreciated.  Feel free to open an issue if
+you have a question.
+
 Acknowledgements
 ----------------
 
