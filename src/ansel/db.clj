@@ -16,14 +16,14 @@
 (def running (atom true))
 (def save-interval (minutes 3))
 
-(def default-db {:albums {}
-                 :images {}
-                 :users {}
-                 :likes {}
-                 :config {:upload-path nil
-                          :thumb-path nil
-                          :template-path nil}
-                 :comments {}})
+(def default-db {:albums   {}
+                 :images   {}
+                 :users    {}
+                 :likes    {}
+                 :comments {}
+                 :config   {:upload-path nil
+                            :thumb-path nil
+                            :template-path nil}})
 
 ;; User management ------------------------------------------------------------
 
