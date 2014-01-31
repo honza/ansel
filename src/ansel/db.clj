@@ -6,7 +6,7 @@
             [ansel.util :refer [exists? minutes pretty-json cwd in?]])
   (:import org.mindrot.jbcrypt.BCrypt))
 
-(def users (atom nil))
+(def users (ref nil))
 (def images (atom nil))
 (def albums (atom nil))
 (def likes (atom nil))
@@ -47,9 +47,9 @@
 
 (defn add-user-to-db [user]
   (dosync
-    (let [current-users @users]
+    (let [current-users (ensure users)]
       (if-not (user-exists? current-users (:username user))
-        (swap! users merge (user->entry user))))))
+        (alter users merge (user->entry user))))))
 
 ;; Photo management -----------------------------------------------------------
 
@@ -84,13 +84,14 @@
   (let [data (if (exists? "config.json")
                (parse-string (slurp "config.json") true)
                default-db)]
-    (reset! users    (:users data))
-    (reset! images   (:images data))
-    (reset! albums   (:albums data))
-    (reset! likes    (:likes data))
-    (reset! config   (:config data))
-    (reset! comments (:comments data))
-    (info "data loaded from disk")))
+    (dosync
+      (ref-set users    (:users data))
+      (reset! images    (:images data))
+      (reset! albums    (:albums data))
+      (reset! likes     (:likes data))
+      (reset! config    (:config data))
+      (reset! comments  (:comments data))
+      (info "data loaded from disk"))))
 
 (defn get-context []
   {:users @users
