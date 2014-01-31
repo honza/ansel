@@ -84,7 +84,7 @@
                  (= password confirm))
           (let [user (select-keys params [:username :password])]
             (db/add-user-to-db user)
-            (resp/redirect "/") user)
+            (resp/redirect "/"))
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
   (with-admin-required
