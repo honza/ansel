@@ -69,6 +69,28 @@ Captured: {{ image.captured }}
   <li>Exposure compensation: {{ image.exif.exposure-compensation }}</li>
 </ul>
 
+
+<div class="comments">
+
+  {% for comment in comments %}
+    <div class="comment">
+      <p>
+        <strong>{{ comment.user }} said:</strong>
+        {{ comment.text }}
+      </p>
+      <small>{{ comment.created }}</small>
+
+      <hr>
+    </div>
+  {% endfor %}
+
+  <form method="post">
+    <textarea rows="10" name="comment" class="form-control"></textarea>
+    <input type="submit" class="btn btn-primary" value="Post comment" />
+  </form>
+
+</div>
+
   </div>
 </div>
 

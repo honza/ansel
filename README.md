@@ -30,11 +30,11 @@ What already works
 * Thumbnails
 * Likes
 * Custom templates
+* Logged in users can comment
 
 Planned
 -------
 
-* Logged in users can comment
 * Email subscription to updates
 * Captions
 * JSON import/export

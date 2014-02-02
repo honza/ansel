@@ -3,6 +3,8 @@
             [cheshire.core :refer :all]
             [me.raynes.fs :as fs]
             [clojure.java.io :as io]
+            [clj-time.core :refer [now]]
+            [clj-time.format :refer [formatters unparse parse]]
             [ansel.util :refer [exists? minutes pretty-json cwd in?]])
   (:import org.mindrot.jbcrypt.BCrypt))
 
@@ -15,6 +17,7 @@
 
 (def running (atom true))
 (def save-interval (minutes 3))
+(def formatter (formatters :mysql))
 
 (def default-db {:albums   {}
                  :images   {}
@@ -77,6 +80,25 @@
       (swap! likes assoc
              (keyword (:filename photo))
              (conj current-likes (:username user))))))
+
+(defn time->string [t]
+  (unparse formatter t))
+
+(defn string->time [s]
+  (parse formatter s))
+
+(defn comment-on-photo [photo username c]
+  (let [current-comments (or ((keyword (:filename photo)) @comments)
+                             [])
+        new-comment {:user username
+                     :created (now)
+                     :text c}]
+    (swap! comments assoc
+           (keyword (:filename photo))
+           (conj current-comments new-comment))))
+
+(defn get-comments-for-photo [photo]
+  (get @comments photo))
 
 ;; Loading --------------------------------------------------------------------
 

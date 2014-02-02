@@ -104,12 +104,23 @@
     (let [image-name (get-in req [:params :image])
           image      (get @db/images (keyword image-name))
           user       (get-in req [:session :user])
+          comments   (db/get-comments-for-photo (keyword image-name))
           you-like   (when user
                        (in? (:likes image) (:username user)))]
       (if image
         (render req "single.html" {:image (db/add-thumbs-to-photo image)
+                                   :comments comments
                                    :you-like you-like})
         (default-error req))))
+
+  (with-login-required
+    (POST "/image/:image" req
+      (let [image-name (get-in req [:params :image])
+            image (@db/images (keyword image-name))
+            username (get-in req [:session :user :username])
+            c (get-in req [:params :comment])]
+        (db/comment-on-photo image username c)
+        (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (with-login-required
     (POST "/like" req
