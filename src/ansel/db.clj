@@ -8,14 +8,14 @@
             [ansel.util :refer [exists? minutes pretty-json cwd in?]])
   (:import org.mindrot.jbcrypt.BCrypt))
 
-(def users (ref nil))
-(def images (atom nil))
-(def albums (atom nil))
-(def likes (atom nil))
-(def config (atom nil))
+(def users    (ref nil))
+(def images   (atom nil))
+(def albums   (atom nil))
+(def likes    (atom nil))
+(def config   (atom nil))
 (def comments (atom nil))
+(def running  (atom true))
 
-(def running (atom true))
 (def save-interval (minutes 3))
 (def formatter (formatters :mysql))
 
