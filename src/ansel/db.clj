@@ -167,9 +167,9 @@
     (str base "_" size ext)))
 
 (defn add-thumbs-to-image [img]
-  (let [small (get-thumb-name (:filename p) 200)
-        big (get-thumb-name (:filename p) 900)]
-    (assoc p :small-thumb small :big-thumb big)))
+  (let [small (get-thumb-name (:filename img) 200)
+        big (get-thumb-name (:filename img) 900)]
+    (assoc img :small-thumb small :big-thumb big)))
 
 (defn add-thumb-urls [db]
   (let [thumbed (map add-thumbs-to-image (:images db))]
@@ -229,9 +229,6 @@
 (defn init []
   (load-data-from-disk)
   (assert-fs))
-
-(init)
-
 
 ;; Background saving ----------------------------------------------------------
 
