@@ -1,5 +1,5 @@
 (defproject ansel "0.2.0"
-  :description "Ansel, a self-hosted photo gallery"
+  :description "Ansel, a self-hosted image gallery"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/math.numeric-tower "0.0.3"]

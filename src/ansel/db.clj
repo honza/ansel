@@ -54,12 +54,12 @@
       (if-not (user-exists? current-users (:username user))
         (alter users merge (user->entry user))))))
 
-;; Photo management -----------------------------------------------------------
+;; Image management -----------------------------------------------------------
 
-(defn add-photo-to-db [photo]
-  (let [photo (assoc photo :created (now))]
-    (swap! images assoc (keyword (:filename photo)) photo)
-    (info "photo added")))
+(defn add-image-to-db [image]
+  (let [image (assoc image :created (now))]
+    (swap! images assoc (keyword (:filename image)) image)
+    (info "image added")))
 
 (defn add-album-to-db [album]
   (let [album (assoc album :created (now))]
@@ -75,12 +75,12 @@
 (defn get-template-path []
   (:template-path @config))
 
-(defn like-photo [photo user]
-  (let [current-likes (or ((keyword (:filename photo)) @likes)
+(defn like-image [image user]
+  (let [current-likes (or ((keyword (:filename image)) @likes)
                           [])]
     (when-not (in? current-likes (:username user))
       (swap! likes assoc
-             (keyword (:filename photo))
+             (keyword (:filename image))
              (conj current-likes (:username user))))))
 
 (defn time->string [t]
@@ -89,18 +89,18 @@
 (defn string->time [s]
   (parse formatter s))
 
-(defn comment-on-photo [photo username c]
-  (let [current-comments (or ((keyword (:filename photo)) @comments)
+(defn comment-on-image [image username c]
+  (let [current-comments (or ((keyword (:filename image)) @comments)
                              [])
         new-comment {:user username
                      :created (now)
                      :text c}]
     (swap! comments assoc
-           (keyword (:filename photo))
+           (keyword (:filename image))
            (conj current-comments new-comment))))
 
-(defn get-comments-for-photo [photo]
-  (get @comments photo))
+(defn get-comments-for-image [image]
+  (get @comments image))
 
 (defn val-map
   "Given a map where every val is a coll or a map, map f over each
@@ -166,13 +166,13 @@
   (let [[base ext] (fs/split-ext filename)]
     (str base "_" size ext)))
 
-(defn add-thumbs-to-photo [p]
+(defn add-thumbs-to-image [img]
   (let [small (get-thumb-name (:filename p) 200)
         big (get-thumb-name (:filename p) 900)]
     (assoc p :small-thumb small :big-thumb big)))
 
 (defn add-thumb-urls [db]
-  (let [thumbed (map add-thumbs-to-photo (:images db))]
+  (let [thumbed (map add-thumbs-to-image (:images db))]
     (assoc db :images thumbed)))
 
 (defn sort-images [db]
@@ -229,6 +229,9 @@
 (defn init []
   (load-data-from-disk)
   (assert-fs))
+
+(init)
+
 
 ;; Background saving ----------------------------------------------------------
 

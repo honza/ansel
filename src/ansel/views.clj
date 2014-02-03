@@ -40,7 +40,7 @@
          user {:user (get-in req [:session :user])}]
       (render-file t (merge db (dissoc ctx :db) user)))))
 
-(defn make-photo [filename exif album]
+(defn make-image [filename exif album]
   {:filename filename
    :captured (:captured exif)
    :exif exif
@@ -52,7 +52,7 @@
         exif (read-exif (:tempfile f))
         uploaded-file (io/file (str (db/get-uploads-path) filename))]
     (io/copy (:tempfile f) uploaded-file)
-    (db/add-photo-to-db (make-photo filename exif album))
+    (db/add-image-to-db (make-image filename exif album))
     (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
     {:name filename
      :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
@@ -104,11 +104,11 @@
     (let [image-name (get-in req [:params :image])
           image      (get @db/images (keyword image-name))
           user       (get-in req [:session :user])
-          comments   (db/get-comments-for-photo (keyword image-name))
+          comments   (db/get-comments-for-image (keyword image-name))
           you-like   (when user
                        (in? (:likes image) (:username user)))]
       (if image
-        (render req "single.html" {:image (db/add-thumbs-to-photo image)
+        (render req "single.html" {:image (db/add-thumbs-to-image image)
                                    :comments comments
                                    :you-like you-like})
         (default-error req))))
@@ -119,7 +119,7 @@
             image (@db/images (keyword image-name))
             username (get-in req [:session :user :username])
             c (get-in req [:params :comment])]
-        (db/comment-on-photo image username c)
+        (db/comment-on-image image username c)
         (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (with-login-required
@@ -128,7 +128,7 @@
             image      (@db/images (keyword image-name))
             username   (get-in req [:session :user :username])]
         (when-not (in? (:likes image) username)
-          (db/add-photo-to-db
+          (db/add-image-to-db
             (update-in image [:likes] conj username)))
         (resp/redirect (str (:context req) "/image/" image-name)))))
 
@@ -149,7 +149,7 @@
   (GET "/albums/:album" req
     (let [album-name (get-in req [:params :album])
           album      (@db/albums (keyword album-name))
-          all-images (map db/add-thumbs-to-photo (vals @db/images))
+          all-images (map db/add-thumbs-to-image (vals @db/images))
           full       (db/add-images-to-album all-images album)]
       (render req "album.html" {:album full})))
 

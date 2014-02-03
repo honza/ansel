@@ -1,7 +1,7 @@
 ansel
 =======
 
-Ansel is a self-hosted, zero-configuration photo gallery application.  With
+Ansel is a self-hosted, zero-configuration image gallery application.  With
 Ansel, you can showcase your photographs online without having to worry about
 who owns your work and how it can be used by third parties.
 
