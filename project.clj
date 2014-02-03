@@ -1,6 +1,6 @@
-(defproject ansel "0.2.0"
+(defproject ansel "0.3.0"
   :description "Ansel, a self-hosted image gallery"
-  :url "http://example.com/FIXME"
+  :url ""
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/math.numeric-tower "0.0.3"]
                  [compojure "1.1.6"]
