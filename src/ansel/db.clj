@@ -57,12 +57,14 @@
 ;; Photo management -----------------------------------------------------------
 
 (defn add-photo-to-db [photo]
-  (swap! images assoc (keyword (:filename photo)) photo)
-  (info "photo added"))
+  (let [photo (assoc photo :created (now))]
+    (swap! images assoc (keyword (:filename photo)) photo)
+    (info "photo added")))
 
 (defn add-album-to-db [album]
-  (swap! albums assoc (keyword (:slug album)) album)
-  (info "album added"))
+  (let [album (assoc album :created (now))]
+    (swap! albums assoc (keyword (:slug album)) album)
+    (info "album added")))
 
 (defn get-uploads-path []
   (or (:upload-path @config) "uploads/"))
@@ -101,12 +103,14 @@
   (get @comments photo))
 
 (defn val-map
-  "Given a map where every val is a coll, map f over each coll,
-  preserving the map's structure"
+  "Given a map where every val is a coll or a map, map f over each
+  coll/map, preserving the map's structure"
   [f m]
   (into {} (map
              (fn [[k v]]
-               [k (vec (map f v))])
+               [k (if (map? v)
+                    (f v)
+                    (vec (map f v)))])
              m)))
 
 (defn map-time->string [m]
@@ -129,8 +133,8 @@
                default-db)]
     (dosync
       (ref-set users    (:users data))
-      (reset! images    (:images data))
-      (reset! albums    (:albums data))
+      (reset! images    (timify-strings (:images data)))
+      (reset! albums    (timify-strings (:albums data)))
       (reset! likes     (:likes data))
       (reset! config    (:config data))
       (reset! comments  (timify-strings (:comments data)))
