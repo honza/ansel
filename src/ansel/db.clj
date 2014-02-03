@@ -100,6 +100,27 @@
 (defn get-comments-for-photo [photo]
   (get @comments photo))
 
+(defn val-map
+  "Given a map where every val is a coll, map f over each coll,
+  preserving the map's structure"
+  [f m]
+  (into {} (map
+             (fn [[k v]]
+               [k (vec (map f v))])
+             m)))
+
+(defn map-time->string [m]
+  (update-in m [:created] time->string))
+
+(defn map-string->time [m]
+  (update-in m [:created] string->time))
+
+(defn stringify-times [coll]
+  (val-map map-time->string coll))
+
+(defn timify-strings [coll]
+  (val-map map-string->time coll))
+
 ;; Loading --------------------------------------------------------------------
 
 (defn load-data-from-disk []
@@ -112,7 +133,7 @@
       (reset! albums    (:albums data))
       (reset! likes     (:likes data))
       (reset! config    (:config data))
-      (reset! comments  (:comments data))
+      (reset! comments  (timify-strings (:comments data)))
       (info "data loaded from disk"))))
 
 (defn get-context []
@@ -124,8 +145,10 @@
    :comments @comments})
 
 (defn save-data-to-disk []
-  (info "saving data to disk")
-  (spit "config.json" (pretty-json (get-context))))
+  (let [context (get-context)
+        context (update-in context [:comments] stringify-times)]
+    (info "saving data to disk")
+    (spit "config.json" (pretty-json context))))
 
 (defn assert-fs []
   (info "creating dirs")
