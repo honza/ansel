@@ -89,6 +89,21 @@ Thanks to @gotoplanb for the name
 Changelog
 ---------
 
+### 0.3.0 - (2014-02-03)
+
+* Upgrade dependencies
+* Switch to Jordan from cemerick/friend
+* Fix saving of new users (use a ref instead of an atom)
+* Add commenting
+* Add creation datetime to photos, albums and comments
+* Code clean up
+
+### 0.2.0 - (2014-01-08)
+
+* Pagination
+* Photo liking
+* Refactor
+
 ### 0.1.2 - (2013-11-21)
 
 * Don't run init code when ns is loaded
