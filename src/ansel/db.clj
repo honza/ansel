@@ -148,9 +148,14 @@
    :config @config
    :comments @comments})
 
+(defn update-keys [m ks f]
+  (let [g (fn [c k]
+            (update-in c [k] f))]
+    (reduce g m ks)))
+
 (defn save-data-to-disk []
   (let [context (get-context)
-        context (update-in context [:comments] stringify-times)]
+        context (update-keys context [:comments :images :albums] stringify-times)]
     (info "saving data to disk")
     (spit "config.json" (pretty-json context))))
 
