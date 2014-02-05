@@ -1,6 +1,6 @@
 (defproject ansel "0.3.0"
   :description "Ansel, a self-hosted image gallery"
-  :url ""
+  :url "https://github.com/honza/ansel"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/math.numeric-tower "0.0.3"]
                  [compojure "1.1.6"]
@@ -15,6 +15,7 @@
                  [image-resizer "0.1.6"]
                  [clj-time "0.6.0"]
                  [jordan "0.2.1"]]
+  :license {:name "BSD" :url "http://opensource.org/licenses/BSD-2-Clause"}
   :jvm-opts ["-Xmx1g" "-Djava.awt.headless=true"]
   :ring {:handler ansel.server/server}
   :plugins [[lein-ring "0.8.2"]]
