@@ -5,7 +5,7 @@
             [clojure.java.io :as io]
             [clj-time.core :refer [now]]
             [clj-time.format :refer [formatters unparse parse]]
-            [ansel.util :refer [exists? minutes pretty-json cwd in?]])
+            [ansel.util :refer :all])
   (:import org.mindrot.jbcrypt.BCrypt))
 
 (def users    (ref nil))
@@ -102,17 +102,6 @@
 (defn get-comments-for-image [image]
   (get @comments image))
 
-(defn val-map
-  "Given a map where every val is a coll or a map, map f over each
-  coll/map, preserving the map's structure"
-  [f m]
-  (into {} (map
-             (fn [[k v]]
-               [k (if (map? v)
-                    (f v)
-                    (vec (map f v)))])
-             m)))
-
 (defn map-time->string [m]
   (update-in m [:created] time->string))
 
@@ -148,14 +137,12 @@
    :config @config
    :comments @comments})
 
-(defn update-keys [m ks f]
-  (let [g (fn [c k]
-            (update-in c [k] f))]
-    (reduce g m ks)))
-
 (defn save-data-to-disk []
   (let [context (get-context)
-        context (update-keys context [:comments :images :albums] stringify-times)]
+        context (update-keys
+                  context
+                  [:comments :images :albums]
+                  stringify-times)]
     (info "saving data to disk")
     (spit "config.json" (pretty-json context))))
 

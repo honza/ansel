@@ -51,3 +51,19 @@
           [(* page-size (dec page))
            (min (dec (* page-size page))
                 (count images))])))))
+
+(defn val-map
+  "Given a map where every val is a coll or a map, map f over each
+  coll/map, preserving the map's structure"
+  [f m]
+  (into {} (map
+             (fn [[k v]]
+               [k (if (map? v)
+                    (f v)
+                    (vec (map f v)))])
+             m)))
+
+(defn update-keys [m ks f]
+  (let [g (fn [c k]
+            (update-in c [k] f))]
+    (reduce g m ks)))
