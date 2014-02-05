@@ -14,7 +14,7 @@
                  [org.apache.sanselan/sanselan "0.97-incubator"]
                  [image-resizer "0.1.6"]
                  [clj-time "0.6.0"]
-                 [jordan "0.1.1"]]
+                 [jordan "0.2.1"]]
   :jvm-opts ["-Xmx1g" "-Djava.awt.headless=true"]
   :ring {:handler ansel.server/server}
   :plugins [[lein-ring "0.8.2"]]

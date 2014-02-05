@@ -87,11 +87,12 @@
             (resp/redirect "/"))
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
-  (with-admin-required
-    (GET "/upload" req (render req "upload.html")))
+  (GET "/upload" req
+    (with-admin-required
+      (render req "upload.html")))
 
-  (with-admin-required
-    (POST "/upload" req
+  (POST "/upload" req
+    (with-admin-required
       (let [uploaded         (get-in req [:params :files])
             album            (get-in req [:params :album])
             process-uploaded (partial process-uploaded-file album)]
@@ -113,8 +114,8 @@
                                    :you-like you-like})
         (default-error req))))
 
-  (with-login-required
-    (POST "/image/:image" req
+  (POST "/image/:image" req
+    (with-login-required
       (let [image-name (get-in req [:params :image])
             image (@db/images (keyword image-name))
             username (get-in req [:session :user :username])
@@ -122,8 +123,8 @@
         (db/comment-on-image image username c)
         (resp/redirect (str (:context req) "/image/" image-name)))))
 
-  (with-login-required
-    (POST "/like" req
+  (POST "/like" req
+    (with-login-required
       (let [image-name (get-in req [:params :image])
             image      (@db/images (keyword image-name))
             username   (get-in req [:session :user :username])]
@@ -136,8 +137,8 @@
     (render req "album-form.html" {:next (or (get-in req [:params :next])
                                              "/albums")}))
 
-  (with-admin-required
-    (POST "/album" req
+  (POST "/album" req
+    (with-admin-required
       (let [album (get-in req [:params :album])
             redir (get-in req [:params :next])]
         (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
