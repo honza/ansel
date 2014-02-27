@@ -101,6 +101,10 @@
           :body (pretty-json
                   {:files (map process-uploaded uploaded)})})))
 
+  (GET "/organize" req
+    (with-admin-required
+      (render req "organize.html")))
+
   (GET "/image/:image" req
     (let [image-name (get-in req [:params :image])
           image      (get @db/images (keyword image-name))
