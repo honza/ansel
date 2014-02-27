@@ -9,89 +9,78 @@
 </div>
 
 <div class="row">
-  <div class="col-md-12 col-sm-12 col-lg-12">
+  <div class="col-md-6 col-sm-6 col-lg-6">
 
-{{ image.caption }}
+    {{ image.caption }}
 
-{% if image.albums %}
-  <p>
-  Albums:
-  {% for album in image.albums %}
-    {{ album}}
-  {% endfor %}
-  </p>
-{% endif %}
+    {% if user %}
 
-{% if user %}
+      {{ like-text }}
 
-{% if image.likes %}
+      {% if not you-like %}
+        <p>
+          <form method="post" action="/like">
+            <input type="hidden" name="image" value="{{ image.filename }}" />
+            <input class="btn btn-primary" type="submit" value="Like this" />
+          </form>
+        </p>
+      {% endif %}
 
-  <p>
-    {% if image.likes|length = 1 %}
-      1 person likes this
-    {% else %}
-      {{ image.likes|length }} people like this
     {% endif %}
-  </p>
 
-{% endif %}
+    {% if image.captured %}
+      <p>Captured: {{ image.captured }}</p>
+    {% endif %}
 
-{% for like in image.likes %}
-  {{ like }}
-{% endfor %}
-
-{% if you-like %}
-  <p>You like this</p>
-{% else %}
-
-  <p>
-    <form method="post" action="/like">
-      <input type="hidden" name="image" value="{{ image.filename }}" />
-      <input class="btn btn-primary" type="submit" value="Like this" />
-    </form>
-  </p>
-
-{% endif %}
-
-{% endif %}
-
-<p>
-Captured: {{ image.captured }}
-</p>
-
-<h3>Exif</h3>
-<ul>
-  <li>Aperture: f/{{ image.exif.aperture }}</li>
-  <li>Shutter speed: {{ image.exif.shutter-speed }}</li>
-  <li>ISO: {{ image.exif.iso }}</li>
-  <li>Focal Length: {{ image.exif.focal-length }}mm</li>
-  <li>Focal Length in 35mm: {{ image.exif.focal-length-35 }}mm</li>
-  <li>Exposure compensation: {{ image.exif.exposure-compensation }}</li>
-</ul>
-
-
-<div class="comments">
-
-  {% for comment in comments %}
-    <div class="comment">
-      <p>
-        <strong>{{ comment.user }} said:</strong>
-        {{ comment.text }}
-      </p>
-      <small>{{ comment.created }}</small>
-
-      <hr>
-    </div>
-  {% endfor %}
-
-  <form method="post">
-    <textarea rows="10" name="comment" class="form-control"></textarea>
-    <input type="submit" class="btn btn-primary" value="Post comment" />
-  </form>
-
-</div>
+    <h3>Details</h3>
+    <ul>
+      <li>Aperture: f/{{ image.exif.aperture }}</li>
+      <li>Shutter speed: {{ image.exif.shutter-speed }}</li>
+      <li>ISO: {{ image.exif.iso }}</li>
+      <li>Focal Length: {{ image.exif.focal-length }}mm</li>
+      <li>Focal Length in 35mm: {{ image.exif.focal-length-35 }}mm</li>
+      <li>Exposure compensation: {{ image.exif.exposure-compensation }}</li>
+        {% if image.albums %}
+          <li>
+          Albums:
+          {% for album in image.albums %}
+            {{ album}}
+          {% endfor %}
+          </li>
+        {% endif %}
+    </ul>
 
   </div>
+
+  <div class="col-md-6 col-sm-6 col-lg-6">
+
+    {% if user %}
+
+      <div class="comments">
+        <h3>Comments</h3>
+
+        {% for comment in comments %}
+          <div class="comment">
+            <p>
+              <strong>{{ comment.user }} said:</strong>
+              {{ comment.text }}
+            </p>
+            <small>{{ comment.created }}</small>
+
+            <hr>
+          </div>
+        {% endfor %}
+
+        <form method="post">
+          <textarea rows="10" name="comment" class="form-control"></textarea>
+          <input type="submit" class="btn btn-primary" value="Post comment" />
+        </form>
+
+      </div>
+    {% endif %}
+
+  </div>
+
 </div>
 
 {% endblock %}

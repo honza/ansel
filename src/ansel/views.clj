@@ -106,11 +106,13 @@
           image      (get @db/images (keyword image-name))
           user       (get-in req [:session :user])
           comments   (db/get-comments-for-image (keyword image-name))
+          like-text  (db/get-like-text (:likes image) (:username user))
           you-like   (when user
                        (in? (:likes image) (:username user)))]
       (if image
         (render req "single.html" {:image (db/add-thumbs-to-image image)
                                    :comments comments
+                                   :like-text like-text
                                    :you-like you-like})
         (default-error req))))
 

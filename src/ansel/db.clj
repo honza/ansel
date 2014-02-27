@@ -83,6 +83,14 @@
              (keyword (:filename image))
              (conj current-likes (:username user))))))
 
+(defn get-like-text [likes username]
+  (if (in? likes username)
+    (condp = (count likes)
+      1 "You like this"
+      2 "You and one other person likes this"
+      (str "You and " (dec (count likes)) " people like this"))
+    (str (count likes) " people like this")))
+
 (defn time->string [t]
   (unparse formatter t))
 
