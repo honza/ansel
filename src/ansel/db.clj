@@ -39,20 +39,25 @@
 (defn get-user [username]
   (get @users (keyword username)))
 
-(defn user->entry [user]
+(defn user->entry
+  "If it's the first user, make them an admin"
+  [user & admin]
   (let [{:keys [username password] :as user} user]
     {(keyword username)
      {:username username
-      :password (hash-bcrypt password)}}))
+      :password (hash-bcrypt password)
+      :admin (or (first admin) false)}}))
 
 (defn user-exists? [users username]
   (contains? users (keyword username)))
 
 (defn add-user-to-db [user]
   (dosync
-    (let [current-users (ensure users)]
+    (let [current-users (ensure users)
+          user-count (count (keys current-users))
+          first-user? (= 0 user-count)]
       (if-not (user-exists? current-users (:username user))
-        (alter users merge (user->entry user))))))
+        (alter users merge (user->entry user first-user?))))))
 
 ;; Image management -----------------------------------------------------------
 
