@@ -57,6 +57,11 @@ Run the server with code reloading:
 
 Note that running the server this way disables the background saving.
 
+Run the server including background saving.  This is the same as running the
+uberjar:
+
+    $ lein run
+
 Releases
 --------
 
