@@ -15,6 +15,11 @@ extended customized.
 Users can also create accounts to post comments and likes.  This feature is
 intended for family photo galleries.
 
+**GitHub**: https://github.com/honza/ansel
+
+**Downloads**: http://honza.ca/ansel/
+
+
 Contents:
 
 .. toctree::
@@ -24,9 +29,29 @@ Contents:
    configuration
 
 
-Indices and tables
-==================
+Getting help
+============
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. _twitter:
+
+Twitter
+-------
+
+You can always bug `@_honza <https://twitter.com/_honza>`_ on Twitter.
+
+.. _bugs:
+
+Bugs/ticket tracker
+-------------------
+
+You can open an issue `GitHub <https://github.com/honza/ansel/issues>`_ for
+just about anything (questions, suggestions, typos, bugs, regressions, etc).
+
+.. _irc:
+
+IRC
+---
+
+Come say hi in ``#ansel`` on Freenode.
+
+.. Refs can be used liked this:  :ref:`Hello <irc>`
