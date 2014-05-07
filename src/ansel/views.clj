@@ -9,7 +9,7 @@
             [ansel.resize :as r]
             [ansel.db :as db]
             [ansel.exif :refer [read-exif]]
-            [ansel.util :refer [pretty-json in? slugify safe-subvec paginate]]))
+            [ansel.util :refer :all]))
 
 (when-let [p (db/get-template-path)]
   (selmer.parser/set-resource-path! p))
@@ -108,9 +108,8 @@
           user       (get-in req [:session :user])
           image      (db/get-image-by-id image-id (:id user))
           comments   (db/get-comments-for-image (keyword image-id))
-          you-like   (if (= 0 (:my_like image)) false true)
-          like-text  (db/get-like-text (:num_likes image) you-like)
-          ]
+          you-like   (do-i-like? image)
+          like-text  (db/get-like-text (:num_likes image) you-like)]
       (if image
         (render req "single.html" {:image (db/add-thumbs-to-image image)
                                    :comments comments
@@ -129,13 +128,12 @@
 
   (POST "/like" req
     (with-login-required
-      (let [image-name (get-in req [:params :image])
-            image      (@db/images (keyword image-name))
-            email   (get-in req [:session :user :email])]
-        (when-not (in? (:likes image) email)
-          (db/add-image-to-db
-            (update-in image [:likes] conj email)))
-        (resp/redirect (str (:context req) "/image/" image-name)))))
+      (let [image-id (get-in req [:params :image])
+            user     (get-in req [:session :user])
+            image    (db/get-image-by-id image-id (:id user))]
+        (when-not (do-i-like? image)
+          (db/like-image image user))
+        (resp/redirect (str (:context req) "/image/" image-id)))))
 
   (GET "/album" req
     (render req "album-form.html" {:next (or (get-in req [:params :next])

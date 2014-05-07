@@ -11,6 +11,7 @@
             [ansel.util :refer :all])
   (:import org.mindrot.jbcrypt.BCrypt))
 
+;; TODO: Generalize database configuration
 (def db-spec
   {:classname "org.postgresql.Driver"
    :subprotocol "postgresql"
@@ -20,9 +21,6 @@
 (defqueries "sql/queries.sql")
 (def tnow (comp to-timestamp now))
 
-;; (def users    (ref nil))
-(def images  (atom nil)) ;; TODO: Stub
-(def albums  (atom nil)) ;; TODO: Stub
 (def config  (atom nil))
 (def running (atom true))
 
@@ -216,8 +214,3 @@
 (defn init []
   (load-data-from-disk)
   (assert-fs))
-
-
-(defn get-db []
-  (print "stub")
-  {})

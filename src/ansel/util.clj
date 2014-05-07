@@ -76,3 +76,7 @@
 
 (defn string->time [s]
   (parse formatter s))
+
+(defn do-i-like? [image]
+  (when (pos? (:my_like image))
+    true))
