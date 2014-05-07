@@ -12,13 +12,7 @@
   (:import org.mindrot.jbcrypt.BCrypt))
 
 (defqueries "sql/queries.sql")
-(def tnow (comp to-timestamp now))
-
 (def config  (atom nil))
-(def running (atom true))
-
-(def save-interval (minutes 3))
-
 (def default-config {:upload-path nil
                      :thumb-path nil
                      :template-path nil
@@ -51,6 +45,8 @@
    :subprotocol "postgresql"
    :subname (get-in @config [:database :host])
    :user (get-in @config [:database :user])})
+
+(def tnow (comp to-timestamp now))
 
 (defn hash-bcrypt [password]
   (BCrypt/hashpw password (BCrypt/gensalt)))
@@ -112,15 +108,15 @@
 
 (defn get-images [& limit]
   (let [images (if (seq limit)
-                  (sql-get-images-limit (get-db-spec) (first limit))
-                  (sql-get-all-images (get-db-spec)))]
+                 (sql-get-images-limit (get-db-spec) (first limit))
+                 (sql-get-all-images (get-db-spec)))]
     (map beef-up-image images)))
 
 (defn get-image-by-id 
   ([id] (get-image-by-id id 0))
   ([id user-id]
    (when-let [images (sql-get-image-by-id (get-db-spec) user-id id)]
-      (beef-up-image (first images)))))
+     (beef-up-image (first images)))))
 
 (defn add-image-to-db [image user-id]
   (sql-insert-image! (get-db-spec)
