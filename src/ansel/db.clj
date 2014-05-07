@@ -28,6 +28,15 @@
       (reset! config data)
       (info "data loaded from disk"))))
 
+(defn get-uploads-path []
+  (or (:upload-path @config) "uploads/"))
+
+(defn get-thumbs-path []
+  (or (:thumb-path @config) "thumbs/"))
+
+(defn get-template-path []
+  (:template-path @config))
+
 (defn assert-fs []
   (info "creating dirs")
   (fs/mkdirs (get-uploads-path))
@@ -149,15 +158,6 @@
 
 (defn get-album-by-slug [slug]
   (sql-get-album-by-slug (get-db-spec) slug))
-
-(defn get-uploads-path []
-  (or (:upload-path @config) "uploads/"))
-
-(defn get-thumbs-path []
-  (or (:thumb-path @config) "thumbs/"))
-
-(defn get-template-path []
-  (:template-path @config))
 
 (defn like-image [image user]
   (with-db-transaction [connection (get-db-spec)]
