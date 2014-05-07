@@ -2,7 +2,10 @@
   (:require [clojure.java.io :refer [file]]
             [clojure.string :as string]
             [clojure.math.numeric-tower :refer [ceil]]
+            [clj-time.format :refer [formatters unparse parse]]
             [cheshire.core :refer :all]))
+
+(def formatter (formatters :mysql))
 
 (defn exists? [path]
   (.exists (file path)))
@@ -67,3 +70,9 @@
   (let [g (fn [c k]
             (update-in c [k] f))]
     (reduce g m ks)))
+
+(defn time->string [t]
+  (unparse formatter t))
+
+(defn string->time [s]
+  (parse formatter s))

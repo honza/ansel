@@ -21,13 +21,9 @@
       <p>
         <label>Add to album</label>
         <select class="form-control" name="album">
-          {% if albums|length > 0 %}
-            {% for album in albums %}
-              <option value="{{ album.slug }}">{{ album.name }}</option>
-            {% endfor %}
-          {% else %}
-            <option value="Uncategorized">Uncategorized</option>
-          {% endif %}
+          {% for album in albums %}
+            <option value="{{ album.id }}">{{ album.name }}</option>
+          {% endfor %}
         </select>
       </p>
       <p>
