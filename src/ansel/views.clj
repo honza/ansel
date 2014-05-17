@@ -39,21 +39,23 @@
    (let [user {:user (get-in req [:session :user])}]
       (render-file t (merge ctx user)))))
 
-(defn make-image [filename exif album]
+(defn make-image [filename exif]
   (merge exif {:filename filename
                :caption nil}))
 
 (defn process-uploaded-file [album user f]
   (let [filename (:filename f)
         exif (read-exif (:tempfile f))
-        uploaded-file (io/file (str (db/get-uploads-path) filename))]
-    (io/copy (:tempfile f) uploaded-file)
-    (db/add-image-to-album
-      (db/add-image-to-db (make-image filename exif album) (:id user))
-      (read-string album))
-    {:name filename
-     :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
-     :thumbnailUrl (r/make-small-thumb uploaded-file)}))
+        uploaded-file (io/file (str (db/get-uploads-path) filename))
+        image (make-image filename exif)]
+    (do
+      (io/copy (:tempfile f) uploaded-file)
+      (db/add-image-to-album
+        (:id (db/add-image-to-db image (:id user)))
+        (read-string album))
+      {:name filename
+       :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
+       :thumbnailUrl (r/make-small-thumb uploaded-file)})))
 
 ;; Routes ---------------------------------------------------------------------
 

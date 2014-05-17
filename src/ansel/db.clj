@@ -86,7 +86,7 @@
                   true))]
     (with-db-transaction [connection (get-db-spec)]
       (when-not (user-exists? connection (:email user))
-        (sql-insert-user! connection
+        (sql-insert-user<! connection
                           (hash-bcrypt (:password user))
                           (:email user)
                           (:name user)
@@ -128,23 +128,23 @@
      (beef-up-image (first images)))))
 
 (defn add-image-to-db [image user-id]
-  (sql-insert-image! (get-db-spec)
-                     (:filename image)
-                     (:caption image)
-                     (:focal-length image)
-                     (:focal-length-35 image)
-                     (:shutter-speed image)
-                     (:aperture image)
-                     (:iso image)
-                     (:exposure-compensation image)
-                     user-id
-                     (to-timestamp (:captured image))))
+  (sql-insert-image<! (get-db-spec)
+                      (:filename image)
+                      (:caption image)
+                      (:focal-length image)
+                      (:focal-length-35 image)
+                      (:shutter-speed image)
+                      (:aperture image)
+                      (:iso image)
+                      (:exposure-compensation image)
+                      user-id
+                      (to-timestamp (:captured image))))
 
 (defn add-image-to-album [image-id album-id]
-  (sql-insert-image-to-album! (get-db-spec) image-id album-id))
+  (sql-insert-image-to-album<! (get-db-spec) image-id album-id))
 
 (defn add-album-to-db [album user]
-  (sql-insert-album!
+  (sql-insert-album<!
     (get-db-spec)
     (:name album)
     (slugify (:name album))
@@ -165,7 +165,7 @@
 (defn like-image [image user]
   (with-db-transaction [connection (get-db-spec)]
     (when-not (like-exists? connection (:id image) (:id user))
-      (sql-insert-like! (:id image) (:id user)))))
+      (sql-insert-like<! (:id image) (:id user)))))
 
 (defn get-like-text [num-likes you-like?]
   (if you-like?
@@ -176,10 +176,10 @@
     (str num-likes " people like this")))
 
 (defn comment-on-image [image user c]
-  (sql-insert-comment! (get-db-spec)
-                       (:id image)
-                       (:id user)
-                       c))
+  (sql-insert-comment<! (get-db-spec)
+                        (:id image)
+                        (:id user)
+                        c))
 
 (defn get-comments-for-image [image]
   (sql-get-comments-for-image (get-db-spec) (:id image)))
