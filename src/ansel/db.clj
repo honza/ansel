@@ -154,10 +154,13 @@
   (sql-get-all-albums (get-db-spec)))
 
 (defn get-images-for-album [album-id]
-  (sql-get-images-for-album (get-db-spec) album-id))
+  (let [images (sql-get-images-for-album
+                 (get-db-spec)
+                 album-id)]
+    (map beef-up-image images)))
 
 (defn get-album-by-slug [slug]
-  (sql-get-album-by-slug (get-db-spec) slug))
+  (first (sql-get-album-by-slug (get-db-spec) slug)))
 
 (defn like-image [image user]
   (with-db-transaction [connection (get-db-spec)]
