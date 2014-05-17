@@ -1,4 +1,9 @@
 (ns ansel.db
+  "Database functions
+
+  * Insert queries always return the newly created objects
+  * When checking for existence, use the `sql-exists?` function
+  * All queries are defined in `queries.sql`"
   (:require [taoensso.timbre :refer [info]]
             [cheshire.core :refer :all]
             [clojure.pprint :refer [pprint]]
