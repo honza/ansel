@@ -98,21 +98,21 @@
             user             (get-in req [:session :user])
             process-uploaded (partial process-uploaded-file album user)]
         {:status 200
-          :headers {"Content-Type" "application/json"}
-          :body (pretty-json
-                  {:files (map process-uploaded uploaded)})})))
+         :headers {"Content-Type" "application/json"}
+         :body (pretty-json
+                 {:files (map process-uploaded uploaded)})})))
 
   (GET "/organize" req
     (with-admin-required
       (render req "organize.html")))
 
   (GET "/image/:image" req
-    (let [image-id   (read-string (get-in req [:params :image]))
-          user       (get-in req [:session :user])
-          image      (db/get-image-by-id image-id (:id user))
-          comments   (db/get-comments-for-image (keyword image-id))
-          you-like   (do-i-like? image)
-          like-text  (db/get-like-text (:num_likes image) you-like)]
+    (let [image-id  (read-string (get-in req [:params :image]))
+          user      (get-in req [:session :user])
+          image     (db/get-image-by-id image-id (:id user))
+          comments  (db/get-comments-for-image (keyword image-id))
+          you-like  (do-i-like? image)
+          like-text (db/get-like-text (:num_likes image) you-like)]
       (if image
         (render req "single.html" {:image (db/add-thumbs-to-image image)
                                    :comments comments
@@ -166,7 +166,8 @@
   (GET "/all" req
     (let [all-images (db/get-images)
           images (take page-size all-images)]
-      (render req "images.html" {:next (when (> (count all-images) page-size)
+      (render req "images.html" {:next (when (> (count all-images)
+                                                page-size)
                                          2)
                                  :images images})))
 

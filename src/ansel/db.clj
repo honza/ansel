@@ -218,6 +218,3 @@
         old-albums (:albums db)
         albums (map (partial add-images-to-album images) old-albums)]
     (assoc db :albums albums)))
-
-(defn add-recent-images [db]
-  (assoc db :recent (take 5 (:images db))))
