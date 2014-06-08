@@ -24,11 +24,11 @@ INSERT INTO ansel_image_album_rels
 VALUES
 (:image_id, :album_id)
 
--- name: sql-get-all-images
-SELECT * FROM ansel_images ORDER BY created;
+-- name: sql-get-images-asc
+SELECT * FROM ansel_images ORDER BY created ASC LIMIT :limit;
 
--- name: sql-get-images-limit
-SELECT * FROM ansel_images ORDER BY created LIMIT :limit;
+-- name: sql-get-images-desc
+SELECT * FROM ansel_images ORDER BY created DESC LIMIT :limit;
 
 -- name: sql-get-image-by-id
 SELECT ansel_images.*,

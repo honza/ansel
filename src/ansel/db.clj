@@ -113,18 +113,26 @@
   (let [thumbed (map add-thumbs-to-image (:images db))]
     (assoc db :images thumbed)))
 
+(defn parse-date-from-sql [img]
+  (assoc img :created (from-sql-time (:created img))))
+
 (defn beef-up-image
   "Take the raw image value from the database and add various helpful
   values to it; e.g. a path to its thumbnail"
   [image]
   (->> image
-       add-thumbs-to-image))
+       add-thumbs-to-image
+       parse-date-from-sql))
 
-(defn get-images [& limit]
-  (let [images (if (seq limit)
-                 (sql-get-images-limit (get-db-spec) (first limit))
-                 (sql-get-all-images (get-db-spec)))]
-    (map beef-up-image images)))
+(defn get-images
+  ([] (get-images nil false))
+  ([limit] (get-images limit false))
+  ([limit rev?]
+   (let [query-fn (if rev?
+                    sql-get-images-desc
+                    sql-get-images-asc)
+         images (query-fn (get-db-spec) limit)]
+    (map beef-up-image images))))
 
 (defn get-image-by-id 
   ([id] (get-image-by-id id 0))

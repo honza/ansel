@@ -71,7 +71,8 @@
       (default-error req))))
 
 (defroutes server-routes
-  (GET "/" req (render req "index.html" {:recent (db/get-images 2)}))
+  (GET "/" req (render req "index.html"
+                       {:recent (db/get-images 5 true)}))
   (GET "/login" req (render req "login.html"))
   (POST "/login" req (handle-login req))
 
