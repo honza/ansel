@@ -6,22 +6,15 @@ Ansel, you can showcase your photographs online without having to worry about
 who owns your work and how it can be used by third parties.
 
 Ansel is written almost entirely in Clojure and is distributed as an uberjar.
-All you need to do is download the file and run it.  Ansel handles resizing,
-exif data collection, captions, albums and much more.  All of your data is
-internally stored as JSON and can be easily used by other applications.  Ansel
-comes with a default set of templates and stylesheets and can be easily
-extended customized.
+Ansel handles resizing, exif data collection, captions, albums and much more.
+Ansel comes with a default set of templates and stylesheets and can be easily
+extended and customized.
 
 Users can also create accounts to post comments and likes.  This feature is
 intended for family photo galleries.
 
-Demo
-----
-
-You can see a demo [here](http://ansel.demo.honza.ca/).
-
-What already works
-------------------
+Features
+--------
 
 * Image upload
 * Exif data collection
@@ -32,8 +25,7 @@ What already works
 * Custom templates
 * Logged in users can comment
 
-Planned
--------
+### Planned
 
 * Email subscription to updates
 * Captions
@@ -50,6 +42,12 @@ installed.
 Clone, the repository:
 
     $ git clone git@github.com:honza/ansel.git
+
+Start a PostgreSQL instance and bootstrap with:
+
+    $ ./bin/bootstrap
+
+This will create an `ansel` database and create the necessary tables.
 
 Run the server with code reloading:
 

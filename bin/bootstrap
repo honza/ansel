@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+createdb ansel
+psql -f src/sql/bootstrap.sql ansel

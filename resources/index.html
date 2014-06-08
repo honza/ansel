@@ -11,7 +11,7 @@
 <div class="row">
   {% for image in recent %}
     <div class="col-md-3 col-sm-6 col-xs-12 col-lg-2">
-      <a href="/image/{{ image.filename }}">
+      <a href="/image/{{ image.id }}">
         <img class="img-thumbnail" src="/thumbs/{{ image.small-thumb }}" />
       </a>
     </div>
@@ -21,5 +21,14 @@
 <div class="row">
   <p>Browse <a href="/all">all images</a></p>
 </div>
+
+<div class="row">
+  <h1>Archive</h1>
+
+  {% for year in years %}
+    <a href class="btn btn-primary">{{ year }}</a>
+  {% endfor %}
+</div>
+
 
 {% endblock %}
