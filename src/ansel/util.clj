@@ -2,10 +2,10 @@
   (:require [clojure.java.io :refer [file]]
             [clojure.string :as string]
             [clojure.math.numeric-tower :refer [ceil]]
-            [clj-time.format :refer [formatters unparse parse]]
+            [clj-time.format :as f]
             [cheshire.core :refer :all]))
 
-(def formatter (formatters :mysql))
+(def formatter (f/formatters :mysql))
 
 (defn exists? [path]
   (.exists (file path)))
@@ -72,10 +72,13 @@
     (reduce g m ks)))
 
 (defn time->string [t]
-  (unparse formatter t))
+  (f/unparse formatter t))
 
 (defn string->time [s]
-  (parse formatter s))
+  (f/parse formatter s))
+
+(defn string->time2 [s]
+  (f/parse (f/formatter "yyyy:MM:dd HH:mm:ss") s))
 
 (defn do-i-like? [image]
   (when (pos? (:my_like image))
