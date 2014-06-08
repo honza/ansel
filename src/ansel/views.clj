@@ -72,7 +72,8 @@
 
 (defroutes server-routes
   (GET "/" req (render req "index.html"
-                       {:recent (db/get-images 5 true)}))
+                       {:recent (db/get-images 5 true)
+                        :years (keys (db/partition-by-year (db/get-images)))}))
   (GET "/login" req (render req "login.html"))
   (POST "/login" req (handle-login req))
 

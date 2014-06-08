@@ -9,8 +9,8 @@
             [clojure.pprint :refer [pprint]]
             [me.raynes.fs :as fs]
             [clojure.java.io :as io]
-            [clj-time.core :refer [now]]
-            [clj-time.coerce :refer [to-timestamp]]
+            [clj-time.core :as t]
+            [clj-time.coerce :refer [to-timestamp from-sql-time]]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :refer [with-db-transaction]]
             [ansel.util :refer :all])
@@ -60,7 +60,7 @@
    :subname (get-in @config [:database :host])
    :user (get-in @config [:database :user])})
 
-(def tnow (comp to-timestamp now))
+(def tnow (comp to-timestamp t/now))
 
 (defn hash-bcrypt [password]
   (BCrypt/hashpw password (BCrypt/gensalt)))
@@ -196,6 +196,12 @@
 
 (defn get-comments-for-image [image]
   (sql-get-comments-for-image (get-db-spec) (:id image)))
+
+(defn partition-by-year [images]
+  (group-by (comp t/year :created) images))
+
+(defn partition-by-month [images]
+  (group-by (comp t/month :created) images))
 
 (defn add-cover-to-album [images album]
   (assoc album :cover (or (:cover album)
