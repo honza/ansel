@@ -1,7 +1,17 @@
 (ns ansel.exif
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [clj-time.core :as t]
+            [clj-time.coerce :as c]
+            [clj-time.format :as f])
   (:import [java.io File]
            [org.apache.sanselan ImageReadException Sanselan]))
+
+(def exif-formatter (f/formatter (t/default-time-zone)
+                                 "yyyy:MM:dd HH:mm:ss"
+                                 "yyyy-MM-dd HH:mm:ss"))
+
+(defn parse-exif-date [s]
+  (c/to-date (f/parse exif-formatter s)))
 
 (def interesting-exif-keywords
   (map keyword ["Focal Length" "Focal Length In 3 5mm Format" "Exposure Time"
@@ -14,7 +24,7 @@
 (defn get-captured-timestamp [exif]
   (let [value (exif (keyword "Create Date"))]
     (when value
-      (s/replace value #"'" ""))))
+      (parse-exif-date (s/replace value #"'" "")))))
 
 (defn format-exif [exif]
   {:focal-length          (exif (keyword "Focal Length"))

@@ -14,7 +14,8 @@
   (* m 60 1000))
 
 (defn pretty-json [m]
-  (generate-string m {:pretty true}))
+  (generate-string m {:pretty true
+                      :date-format "yyyy-MM-dd HH:mm:ss"}))
 
 (defn in? [coll el]
   (some #(= el %) coll))
