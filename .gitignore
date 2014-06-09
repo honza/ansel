@@ -18,5 +18,3 @@ config.json
 thumbs
 uploads
 docs/_build
-standalone
-session

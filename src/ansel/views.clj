@@ -9,7 +9,7 @@
             [ansel.resize :as r]
             [ansel.db :as db]
             [ansel.exif :refer [read-exif]]
-            [ansel.util :refer :all]))
+            [ansel.util :refer [pretty-json in? slugify safe-subvec paginate]]))
 
 (when-let [p (db/get-template-path)]
   (selmer.parser/set-resource-path! p))
@@ -36,33 +36,34 @@
   ([req t]
    (render req t {}))
   ([req t ctx]
-   (let [user {:user (get-in req [:session :user])}]
-      (render-file t (merge ctx user)))))
+   (let [db (or (:db ctx) (db/get-db))
+         user {:user (get-in req [:session :user])}]
+      (render-file t (merge db (dissoc ctx :db) user)))))
 
-(defn make-image [filename exif]
-  (merge exif {:filename filename
-               :caption nil}))
+(defn make-image [filename exif album]
+  {:filename filename
+   :captured (:captured exif)
+   :exif exif
+   :albums (if album [album] [])
+   :caption nil})
 
-(defn process-uploaded-file [album user f]
+(defn process-uploaded-file [album f]
   (let [filename (:filename f)
         exif (read-exif (:tempfile f))
-        uploaded-file (io/file (str (db/get-uploads-path) filename))
-        image (make-image filename exif)]
-    (do
-      (io/copy (:tempfile f) uploaded-file)
-      (db/add-image-to-album
-        (:id (db/add-image-to-db image (:id user)))
-        (read-string album))
-      {:name filename
-       :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
-       :thumbnailUrl (r/make-small-thumb uploaded-file)})))
+        uploaded-file (io/file (str (db/get-uploads-path) filename))]
+    (io/copy (:tempfile f) uploaded-file)
+    (db/add-image-to-db (make-image filename exif album))
+    (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
+    {:name filename
+     :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
+     :thumbnailUrl (r/make-small-thumb uploaded-file)}))
 
 ;; Routes ---------------------------------------------------------------------
 
 
 (defn handle-login [req]
-  (let [{{:keys [email password]} :params} req
-        user (db/get-user (or email nil))]
+  (let [{{:keys [username password]} :params} req
+        user (db/get-user (or username nil))]
     (if user
       (if (db/verify-bcrypt password (:password user))
         (-> (resp/redirect "/")
@@ -71,49 +72,47 @@
       (default-error req))))
 
 (defroutes server-routes
-  (GET "/" req (render req "index.html"
-                       {:recent (db/get-images 5 true)
-                        :years (keys (db/partition-by-year (db/get-images)))}))
+  (GET "/" req (render req "index.html"))
   (GET "/login" req (render req "login.html"))
   (POST "/login" req (handle-login req))
 
   (GET "/logout" req (-> (resp/redirect "/")
                          (assoc :session {})))
   (GET "/signup" req (render req "signup.html" ))
-  (POST "/signup" {{:keys [email password confirm] :as params} :params :as req}
-        (if (and (not-any? s/blank? [email password confirm])
+  (POST "/signup" {{:keys [username password confirm] :as params} :params :as req}
+        (if (and (not-any? s/blank? [username password confirm])
                  (= password confirm))
-          (let [user (select-keys params [:email :password])]
+          (let [user (select-keys params [:username :password])]
             (db/add-user-to-db user)
             (resp/redirect "/"))
           (assoc (resp/redirect (str (:context req) "/")) :flash "passwords don't match!")))
 
   (GET "/upload" req
     (with-admin-required
-      (render req "upload.html" {:albums (db/get-all-albums)})))
+      (render req "upload.html")))
 
   (POST "/upload" req
     (with-admin-required
       (let [uploaded         (get-in req [:params :files])
             album            (get-in req [:params :album])
-            user             (get-in req [:session :user])
-            process-uploaded (partial process-uploaded-file album user)]
+            process-uploaded (partial process-uploaded-file album)]
         {:status 200
-         :headers {"Content-Type" "application/json"}
-         :body (pretty-json
-                 {:files (map process-uploaded uploaded)})})))
+          :headers {"Content-Type" "application/json"}
+          :body (pretty-json
+                  {:files (map process-uploaded uploaded)})})))
 
   (GET "/organize" req
     (with-admin-required
       (render req "organize.html")))
 
   (GET "/image/:image" req
-    (let [image-id  (read-string (get-in req [:params :image]))
-          user      (get-in req [:session :user])
-          image     (db/get-image-by-id image-id (:id user))
-          comments  (db/get-comments-for-image (keyword image-id))
-          you-like  (do-i-like? image)
-          like-text (db/get-like-text (:num_likes image) you-like)]
+    (let [image-name (get-in req [:params :image])
+          image      (get @db/images (keyword image-name))
+          user       (get-in req [:session :user])
+          comments   (db/get-comments-for-image (keyword image-name))
+          like-text  (db/get-like-text (:likes image) (:username user))
+          you-like   (when user
+                       (in? (:likes image) (:username user)))]
       (if image
         (render req "single.html" {:image (db/add-thumbs-to-image image)
                                    :comments comments
@@ -123,21 +122,22 @@
 
   (POST "/image/:image" req
     (with-login-required
-      (let [image-id (get-in req [:params :image])
-            image (db/get-image-by-id image-id)
-            email (get-in req [:session :user :email])
+      (let [image-name (get-in req [:params :image])
+            image (@db/images (keyword image-name))
+            username (get-in req [:session :user :username])
             c (get-in req [:params :comment])]
-        (db/comment-on-image image email c)
-        (resp/redirect (str (:context req) "/image/" image-id)))))
+        (db/comment-on-image image username c)
+        (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (POST "/like" req
     (with-login-required
-      (let [image-id (get-in req [:params :image])
-            user     (get-in req [:session :user])
-            image    (db/get-image-by-id image-id (:id user))]
-        (when-not (do-i-like? image)
-          (db/like-image image user))
-        (resp/redirect (str (:context req) "/image/" image-id)))))
+      (let [image-name (get-in req [:params :image])
+            image      (@db/images (keyword image-name))
+            username   (get-in req [:session :user :username])]
+        (when-not (in? (:likes image) username)
+          (db/add-image-to-db
+            (update-in image [:likes] conj username)))
+        (resp/redirect (str (:context req) "/image/" image-name)))))
 
   (GET "/album" req
     (render req "album-form.html" {:next (or (get-in req [:params :next])
@@ -146,39 +146,37 @@
   (POST "/album" req
     (with-admin-required
       (let [album (get-in req [:params :album])
-            user  (get-in req [:session :user])
             redir (get-in req [:params :next])]
-        (db/add-album-to-db
-          {:name album :cover nil :slug (slugify album)}
-          user)
+        (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
         (resp/redirect (str (:context req) redir)))))
 
   (GET "/albums" req
-    (let [albums (db/get-all-albums)]
-      (render req "albums.html" {:albums albums})))
+    (render req "albums.html"))
 
   (GET "/albums/:album" req
     (let [album-name (get-in req [:params :album])
-          album      (db/get-album-by-slug album-name)
-          all-images (db/get-images-for-album (:id album))
-          full       (merge album {:images all-images})]
+          album      (@db/albums (keyword album-name))
+          all-images (map db/add-thumbs-to-image (vals @db/images))
+          full       (db/add-images-to-album all-images album)]
       (render req "album.html" {:album full})))
 
   (GET "/all" req
-    (let [all-images (db/get-images)
-          images (take page-size all-images)]
-      (render req "images.html" {:next (when (> (count all-images)
-                                                page-size)
+    (let [c (db/get-db)
+          images (take page-size (:images c))]
+      (render req "images.html" {:db c
+                                 :next (when (> (count (:images c)) page-size)
                                          2)
                                  :images images})))
 
   (GET "/all/:page" req
-    (let [images (vec (db/get-images))
+    (let [c (db/get-db)
+          images (vec (:images c))
           page (Integer. (get-in req [:params :page]))
           [start end] (paginate page page-size images)
           images (safe-subvec images start end)]
       (if images
-        (render req "images.html" {:page page
+        (render req "images.html" {:db c
+                                   :page page
                                    :next (inc page)
                                    :prev (dec page)
                                    :images images})

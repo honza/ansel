@@ -1,6 +1,5 @@
 (ns ansel.exif
-  (:require [clojure.string :as s]
-            [ansel.util :as util])
+  (:require [clojure.string :as s])
   (:import [java.io File]
            [org.apache.sanselan ImageReadException Sanselan]))
 
@@ -15,18 +14,14 @@
 (defn get-captured-timestamp [exif]
   (let [value (exif (keyword "Create Date"))]
     (when value
-      (try
-        (util/string->time (s/replace value "'" ""))
-        (catch Exception e
-          (util/string->time2 (s/replace value "'" "")))))))
-
+      (s/replace value #"'" ""))))
 
 (defn format-exif [exif]
-  {:focal-length          (read-string (exif (keyword "Focal Length")))
-   :focal-length-35       (read-string (exif (keyword "Focal Length In 3 5mm Format")))
+  {:focal-length          (exif (keyword "Focal Length"))
+   :focal-length-35       (exif (keyword "Focal Length In 3 5mm Format"))
    :shutter-speed         (exif (keyword "Exposure Time"))
    :aperture              (exif (keyword "FNumber"))
-   :iso                   (read-string (exif (keyword "ISO")))
+   :iso                   (exif (keyword "ISO"))
    :exposure-compensation (exif (keyword "Exposure Compensation"))
    :captured              (get-captured-timestamp exif)})
 
@@ -35,3 +30,4 @@
     (when metadata
       (format-exif
         (apply assoc {} (mapcat parse-item (.getItems metadata)))))))
+

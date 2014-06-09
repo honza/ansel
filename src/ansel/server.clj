@@ -6,10 +6,9 @@
             [ansel.session :refer [filesystem-store]]
             [ansel.views :refer [server-routes]]))
 
-;; TODO: Wrap cookies, httponly
 (def server
   (-> server-routes
-      (site {:session {:store (filesystem-store "session")}})))
+      (site {:session {:store (filesystem-store "session.json")}})))
 
 (defn start-server [port]
   (run-jetty server {:port port :join? false})

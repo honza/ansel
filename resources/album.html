@@ -6,11 +6,9 @@
 
   <h1>{{ album.name }}</h1>
 
-  <p>Album details</p>
-
   {% for image in album.images %}
     <div class="col-md-3 col-sm-6 col-xs-12 col-lg-2">
-      <a href="/image/{{ image.id }}">
+      <a href="/image/{{ image.filename }}">
         <img class="img-thumbnail" src="/thumbs/{{ image.small-thumb }}" />
       </a>
     </div>

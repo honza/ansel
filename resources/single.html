@@ -20,7 +20,7 @@
       {% if not you-like %}
         <p>
           <form method="post" action="/like">
-            <input type="hidden" name="image" value="{{ image.id }}" />
+            <input type="hidden" name="image" value="{{ image.filename }}" />
             <input class="btn btn-primary" type="submit" value="Like this" />
           </form>
         </p>
