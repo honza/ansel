@@ -17,7 +17,8 @@
                  [jordan "0.2.1"]]
   :license {:name "BSD" :url "http://opensource.org/licenses/BSD-2-Clause"}
   :jvm-opts ["-Xmx1g" "-Djava.awt.headless=true"]
-  :ring {:handler ansel.server/server}
+  :ring {:handler ansel.server/server
+         :init ansel.db/init}
   :plugins [[lein-ring "0.8.2"]]
   :main ^:skip-aot ansel.core
   :target-path "target/%s"
