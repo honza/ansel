@@ -18,3 +18,4 @@ config.json
 thumbs
 uploads
 docs/_build
+resources/public/bower_components

@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
-<link rel="stylesheet" href="css/jquery.fileupload.css">
-<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="/bower_components/blueimp-file-upload/css/jquery.fileupload.css">
+<link rel="stylesheet" href="/bower_components/blueimp-file-upload/css/jquery.fileupload-ui.css">
 <style>
 /* Hide Angular JS elements before initializing */
 .ng-cloak {
@@ -114,17 +111,19 @@
 
 {% endblock %}
 {% block extra_js %}
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-  <script src="js/vendor/jquery.ui.widget.js"></script>
-  <script src="http://blueimp.github.io/JavaScript-Load-Image/js/load-image.min.js"></script>
-  <script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
-  <script src="js/jquery.iframe-transport.js"></script>
-  <script src="js/jquery.fileupload.js"></script>
-  <script src="js/jquery.fileupload-process.js"></script>
-  <script src="js/jquery.fileupload-image.js"></script>
-  <script src="js/jquery.fileupload-angular.js"></script>
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/angular/angular.min.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>
+  <script src="/bower_components/blueimp-load-image/js/load-image.min.js"></script>
+  <script src="/bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/jquery.fileupload.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"></script>
+  <script src="/bower_components/blueimp-file-upload/js/jquery.fileupload-angular.js"></script>
+
   <script src="js/app.js"></script>
+
 {% endblock %}
 </body> 
 </html>
