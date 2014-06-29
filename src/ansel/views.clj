@@ -4,6 +4,7 @@
             [ansel.resize :as r]
             [ansel.util :refer [in? paginate pretty-json safe-subvec slugify]]
             [clojure.java.io :as io]
+            [clojure.string :as s]
             [jordan.core :refer :all]
             [ring.util.response :as resp]
             [selmer.parser :refer [render-file]]))
@@ -91,17 +92,15 @@
   (render req "signup.html" ))
 
 (defn signup-handler-post [req]
-  nil
-  )
-;; (defn signup-handler-post [req]
-;;   (let [{:keys [username password confirm] :as params} :params :as req]
-;;     (if (and (not-any? s/blank? [username password confirm])
-;;               (= password confirm))
-;;       (let [user (select-keys params [:username :password])]
-;;         (db/add-user-to-db user)
-;;         (resp/redirect "/"))
-;;       (assoc (resp/redirect (str (:context req) "/"))
-;;              :flash "passwords don't match!"))))
+  (let [params (:params req)
+        {:keys [username password confirm]} params]
+    (if (and (not-any? s/blank? [username password confirm])
+              (= password confirm))
+      (let [user (select-keys params [:username :password])]
+        (db/add-user-to-db user)
+        (resp/redirect "/"))
+      (assoc (resp/redirect (str (:context req) "/"))
+             :flash "passwords don't match!"))))
 
 (defn upload-handler [req]
   (with-admin-required
