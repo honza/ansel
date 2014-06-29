@@ -36,8 +36,6 @@
    :captured              (get-captured-timestamp exif)})
 
 (defn read-exif [file]
-  (let [metadata (Sanselan/getMetadata file)]
-    (when metadata
-      (format-exif
-        (apply assoc {} (mapcat parse-item (.getItems metadata)))))))
-
+  (when-let [metadata (Sanselan/getMetadata file)]
+    (format-exif
+      (apply assoc {} (mapcat parse-item (.getItems metadata))))))

@@ -4,7 +4,6 @@
             [compojure.core :refer :all]
             [compojure.route :as route]))
 
-
 (defroutes server-routes
   (GET  "/"              req (index-handler req))
   (GET  "/login"         req (login-handler req))
