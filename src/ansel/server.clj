@@ -4,7 +4,7 @@
             [compojure.handler :refer [site]]
             [ring.adapter.jetty :refer [run-jetty]]
             [ansel.session :refer [filesystem-store]]
-            [ansel.views :refer [server-routes]]))
+            [ansel.urls :refer [server-routes]]))
 
 (def server
   (-> server-routes
