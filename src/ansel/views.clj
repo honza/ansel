@@ -37,8 +37,12 @@
    (render req t {}))
   ([req t ctx]
    (let [db (or (:db ctx) (db/get-db))
-         user {:user (get-in req [:session :user])}]
-      (render-file t (merge db (dissoc ctx :db) user)))))
+         user {:user (get-in req [:session :user])}
+         gallery-name (db/get-gallery-name)]
+      (render-file t (merge db
+                            (dissoc ctx :db)
+                            user
+                            {:name gallery-name})))))
 
 (defn make-image [filename exif album]
   {:filename filename

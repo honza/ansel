@@ -24,7 +24,8 @@
                  :users    {}
                  :likes    {}
                  :comments {}
-                 :config   {:upload-path nil
+                 :config   {:name "Ansel gallery"
+                            :upload-path nil
                             :thumb-path nil
                             :template-path nil}})
 
@@ -79,6 +80,9 @@
 
 (defn get-template-path []
   (:template-path @config))
+
+(defn get-gallery-name []
+  (:name @config))
 
 (defn like-image [image user]
   (let [current-likes (or ((keyword (:filename image)) @likes)
