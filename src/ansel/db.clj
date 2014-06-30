@@ -27,7 +27,9 @@
                  :config   {:name "Ansel gallery"
                             :upload-path nil
                             :thumb-path nil
-                            :template-path nil}})
+                            :template-path nil
+                            :small-thumb-width 300
+                            :big-thumb-width 960}})
 
 ;; User management ------------------------------------------------------------
 
@@ -176,8 +178,8 @@
     (str base "_" size ext)))
 
 (defn add-thumbs-to-image [img]
-  (let [small (get-thumb-name (:filename img) 200)
-        big (get-thumb-name (:filename img) 900)]
+  (let [small (get-thumb-name (:filename img) (:small-thumb-width @config))
+        big (get-thumb-name (:filename img) (:big-thumb-width @config))]
     (assoc img :small-thumb small :big-thumb big)))
 
 (defn add-thumb-urls [db]

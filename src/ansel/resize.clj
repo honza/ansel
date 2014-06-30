@@ -53,4 +53,4 @@
   (str "/thumbs/" filename))
 
 (defn make-small-thumb [f]
-  (thumb-url (make-thumb f 200)))
+  (thumb-url (make-thumb f (:small-thumb-width @db/config))))

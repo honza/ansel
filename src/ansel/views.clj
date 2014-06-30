@@ -53,15 +53,14 @@
   (let [filename (:filename f)
         exif (read-exif (:tempfile f))
         uploaded-file (io/file (str (db/get-uploads-path) filename))]
+    (prn album)
     (io/copy (:tempfile f) uploaded-file)
     (db/add-image-to-db (make-image filename exif album))
-    (db/add-album-to-db {:name album :cover nil :slug (slugify album)})
     {:name filename
-     :url (r/thumb-url (r/resize-to-width* uploaded-file 900))
+     :url (r/thumb-url (r/resize-to-width*
+                         uploaded-file
+                         (:big-thumb-width @db/config)))
      :thumbnailUrl (r/make-small-thumb uploaded-file)}))
-
-;; Routes ---------------------------------------------------------------------
-
 
 (defn handle-login [req]
   (let [{{:keys [username password]} :params} req
