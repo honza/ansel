@@ -22,4 +22,5 @@
   :plugins [[lein-ring "0.8.2"]]
   :main ^:skip-aot ansel.core
   :target-path "target/%s"
+  :jar-exclusions [#"\.cljx|\.DS_Store"]
   :profiles {:uberjar {:aot :all}})
