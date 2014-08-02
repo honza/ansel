@@ -1,8 +1,8 @@
 # docker build -t ansel .
 # docker run -p 8000 ansel
-from ubuntu:12.04
+from ubuntu:14.04
 run apt-get update
-run apt-get install -y openjdk-6-jre-headless wget
+run apt-get install -y openjdk-7-jre-headless wget
 run wget http://honza.ca/ansel/releases/ansel-0.3.0-standalone.jar -O /opt/ansel.jar
 expose 8000
 workdir /opt
