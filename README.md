@@ -89,7 +89,7 @@ you have a question.
 Acknowledgements
 ----------------
 
-Thanks to @gotoplanb for the name
+Thanks to @gotoplanb for the name.
 
 Changelog
 ---------
