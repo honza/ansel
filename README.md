@@ -47,7 +47,7 @@ Developing
 Make sure that you have [Leiningen](https://github.com/technomancy/leiningen)
 installed.
 
-Clone, the repository:
+Clone the repository:
 
     $ git clone git@github.com:honza/ansel.git
 
@@ -89,7 +89,7 @@ you have a question.
 Acknowledgements
 ----------------
 
-Thanks to @gotoplanb for the name
+Thanks to @gotoplanb for the name.
 
 Changelog
 ---------
