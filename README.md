@@ -51,6 +51,11 @@ Clone the repository:
 
     $ git clone git@github.com:honza/ansel.git
 
+Download JavaScript assets with npm and bower:
+
+    $ lein npm install bower   # if bower is not already installed
+    $ lein bower install
+
 Run the server with code reloading:
 
     $ lein ring server

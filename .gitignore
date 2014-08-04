@@ -19,3 +19,7 @@ thumbs
 uploads
 docs/_build
 resources/public/bower_components
+
+# files created by lein-npm plugin
+node_modules/
+npm-debug.log
